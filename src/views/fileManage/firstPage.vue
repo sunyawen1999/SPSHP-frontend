@@ -34,15 +34,27 @@
           </el-col>
           <el-col :span="8">
             <el-card class="number-card">
-              <span>累计完成咨询</span>
-              <span>1111111111</span>
+              <div style="margin-top:20px;">
+                <span style="font-size: 10px;color: white">累计完成咨询</span>
+              </div>
+              <span style="font-size: 50px;color: white">12345</span>
             </el-card>
           </el-col>
         </el-row>
         <el-row :gutter="15">
           <el-card class="today-number-card">
-            <span>今日咨询数</span>
-            <span>1111111111</span>
+            <table style="margin-top:45px;rules=cols">
+            <tr>
+              <th><span style="margin-left:40px;font-size:10px;color: gray">今日咨询数</span></th>
+              <th><span style="margin-left:150px;font-size: 10px;color: gray">今日咨询时长</span></th>
+              <th><span style="margin-left:150px;font-size: 10px;color: gray">当前会话数</span></th>
+            </tr>
+            <tr>
+              <td><span style="margin-left:40px;font-size: 50px;color: black">123</span></td>
+              <td><span style="margin-left:150px;font-size: 50px;color: black">123</span></td>
+              <td><span style="margin-left:150px;font-size: 50px;color: black">123</span></td>
+            </tr>
+            </table>
           </el-card>
         </el-row>
       </el-col>
@@ -158,12 +170,18 @@ export default {
 .el-row {
   margin-bottom: 0;
 }
+.table{
+  border-collapse: separate;
+  border-spacing: 100px; 
+}
 .person-card {
   width: 100%;
 }
 .number-card {
+  text-align: center; 
   padding-left: 0px;
   height: 168px;
+  background-color: #3b536f;
 }
 .today-number-card {
   margin-top: 20px;
