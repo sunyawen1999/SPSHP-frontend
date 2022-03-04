@@ -1,5 +1,8 @@
 <template>
   <div class="set-bg">
+    <div class="logo">
+
+    </div>
     <el-form
       :model="loginForm"
       :rules="loginRules"
@@ -26,18 +29,10 @@
         ></el-input>
       </el-form-item>
       <el-form-item style="width: 100%">
-        <!-- <el-button
-          type="primary"
-          class="login-set-btn"
-          @click.native.prevent="handleLogin"
-
-          >登录</el-button
-        > -->
-        <!-- 接上接口换上面那个 -->
         <el-button
           type="primary"
           class="login-set-btn"
-          @click="handleLogin"
+          @click.native.prevent="handleLogin"
 
           >登录</el-button
         >
@@ -154,11 +149,11 @@ export default {
 
   .logo {
     position: fixed;
-    top: 44px;
-    left: calc(50% - 35px);
-    width: 114px;
-    height: 115px;
-    //background: url(../assets/login.png)
+    top: -79px;
+    left: calc(50% - 280px);
+    width: 394px;
+    height: 319px;
+    background: url(../assets/login.png) no-repeat
     }
 
   .login-container {
