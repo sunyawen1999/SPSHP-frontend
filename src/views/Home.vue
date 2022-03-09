@@ -2,6 +2,7 @@
   <el-container class="container">
     <el-aside width="200px">
       <div class="top-title">
+        欢迎，xxxx
       </div>
       <el-menu
         :default-active="$route.path"
@@ -357,7 +358,7 @@ export default {
     background-color: rgba(250, 250, 250, 1);
     .top-title {
       //background: url(../assets/login.png) no-repeat;
-      height: 96px;
+      height: 58px;
       width: 58px;
       background-size: 58px 59px;
       margin-left: 86px;
