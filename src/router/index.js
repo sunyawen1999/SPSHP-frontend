@@ -46,6 +46,10 @@ const routes = [
                 component: () => import('../views/fileManage/firstPage'), name: '首页', meta: 'firstPage'
             },
             {
+                path: '/adminFirstPage',
+                component: () => import('../views/fileManage/adminFirstPage'), name: '首页', meta: 'adminFirstPage'
+            },
+            {
                 path: '/consultationRecords',
                 component: () => import('../views/fileManage/consultationRecords'), name: '咨询记录', meta: 'consultationRecords'
             },
