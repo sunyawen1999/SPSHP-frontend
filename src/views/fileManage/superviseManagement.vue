@@ -10,7 +10,8 @@
     >
     <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
        <el-tab-pane label="个人信息" name="personInfo">
-        <el-form ref="addform" :model="addform" label-width="80px">
+        <el-form ref="addformRef" :model="addform" 
+        :rules="addRules" label-width="80px">
         <el-row>
           <el-col :span="10">
             <el-form-item label="姓名" prop="name">
@@ -31,22 +32,22 @@
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="身份证号码">
+            <el-form-item label="身份证号码" prop="idNumber">
               <el-input v-model="addform.idNumber" placeholder="请输入身份证号"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="电话">
+            <el-form-item label="电话" prop="phone">
               <el-input v-model="addform.phone" placeholder="请输入联系电话"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="邮箱">
+            <el-form-item label="邮箱" prop="email">
               <el-input v-model="addform.email" placeholder="请输入邮箱地址"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="20">
-              <el-form-item label="绑定督导">
+              <el-form-item label="绑定督导" prop="aupervisor">
               <el-select v-model="addform.supervisor" placeholder="请选择督导">
               </el-select>
               </el-form-item>
@@ -55,36 +56,36 @@
           </el-form>
        </el-tab-pane>
        <el-tab-pane label="工作信息" name="jobInfo">
-        <el-form ref="addJobform" :model="addJobform" label-width="80px">
+        <el-form ref="addformRef" :model="addform" label-width="80px">
         <el-row>
             <el-col :span="10">
             <el-form-item label="用户名" prop="accountName">
-              <el-input v-model="addJobform.accountName" placeholder="请输入用户名"></el-input>
+              <el-input v-model="addform.accountName" placeholder="请输入用户名"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="密码">
-              <el-input v-model="addJobform.password" placeholder="请输入密码"></el-input>
+            <el-form-item label="密码" prop="password">
+              <el-input v-model="addform.password" placeholder="请输入密码"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="工作单位">
-              <el-input v-model="addJobform.workUnit" placeholder="请输入工作单位"></el-input>
+            <el-form-item label="工作单位" prop="workUnit">
+              <el-input v-model="addform.workUnit" placeholder="请输入工作单位"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="职称">
-              <el-input v-model="addJobform.title" placeholder="请输入职称"></el-input>
+            <el-form-item label="职称" prop="title">
+              <el-input v-model="addform.title" placeholder="请输入职称"></el-input>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="督导资质">
-              <el-select v-model="addJobform.credit" placeholder="请选择督导资质"></el-select>
+            <el-form-item label="督导资质" prop="credit">
+              <el-select v-model="addform.credit" placeholder="请选择督导资质"></el-select>
             </el-form-item>
             </el-col>
             <el-col :span="10">
-            <el-form-item label="资质编号">
-              <el-input v-model="addJobform.creditNumber" placeholder="请输入资质编号"></el-input>
+            <el-form-item label="资质编号" prop="creditNumber">
+              <el-input v-model="addform.creditNumber" placeholder="请输入资质编号"></el-input>
             </el-form-item>
             </el-col>
             </el-row>
@@ -92,7 +93,7 @@
        </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogAdd = false">取 消</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="dialogAddSure">确 定</el-button>
       </span>
     </el-dialog>
@@ -248,14 +249,16 @@ export default {
         phone: "",
         email: "",
         supervisor: "",
-      },
-      addJobform: {
         accountName: "",
         password: "",
         workUnit: "",
         title: "",
         credit: "",
         creditNumber:"",
+      },
+      addRules: {
+        name: [{ required:true, message:'请输入姓名', trigger:[ "blur"]}],
+        age: [{ required:true, message:'请输入年龄',trigger: ["blur"] }],
       },
     };
   },
@@ -300,6 +303,37 @@ export default {
       }); */
     },
     editDetail(id) {},
+    beforeLeave(){
+    },
+    reset() {
+      this.getList();
+    },
+    dialogAddSure() {
+      // this.$refs['addform'].validate((valid) => {
+      //     if (valid) {
+      //       const formData = new FormData();
+      //       formData.append("name", this.addform.name);
+      //       axios({
+      //         method: "post",
+      //         baseURL: "",
+      //         url: "",
+      //         data: formData,
+      //       })
+      //         .then((res) => {
+      //           if (res.data.status == 0) {
+      //             this.dialogAdd = false;
+      //             this.get();
+      //           }
+      //         })
+      //         .catch((err) => {
+      //           console.log(err);
+      //         });
+      //     } else {
+      //       this.$message.error("信息不完整！");
+      //       return false;
+      //     }
+      // })
+    },
     addClick() {
       this.dialogVisible = true;
     },
