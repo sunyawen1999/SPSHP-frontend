@@ -121,6 +121,125 @@
           <el-button type="primary" @click="dialogAddSure">确 定</el-button>
         </span>
       </el-dialog>
+      <el-dialog
+        title="编辑咨询师"
+        :visible.sync="dialogUpdateVisible"
+        width="50%"
+        :destroy-on-close="false"
+      >
+        <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
+          <el-tab-pane label="个人信息" name="personInfo">
+            <el-form
+              ref="updateFormRef"
+              :model="updateForm"
+              :rules="editRules"
+              label-width="80px"
+            >
+              <el-row>
+                <el-col :span="10">
+                  <el-form-item label="姓名" prop="name">
+                    <el-input
+                      v-model="updateForm.name"
+                      placeholder="请输入姓名"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="性别" prop="gender">
+                    <el-radio-group v-model="updateForm.gender">
+                      <el-radio label="1">男</el-radio>
+                      <el-radio label="0">女</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="年龄" prop="age">
+                    <el-input
+                      v-model="updateForm.age"
+                      placeholder="请输入年龄"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="身份证号码" prop="idNumber">
+                    <el-input
+                      v-model="updateForm.idNumber"
+                      placeholder="请输入身份证号"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="电话" prop="phone">
+                    <el-input
+                      v-model="updateForm.phone"
+                      placeholder="请输入联系电话"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="邮箱" prop="email">
+                    <el-input
+                      v-model="updateForm.email"
+                      placeholder="请输入邮箱地址"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="20">
+                  <el-form-item label="绑定督导" prop="supervisor">
+                    <el-select
+                      v-model="updateForm.supervisor"
+                      placeholder="请选择督导"
+                    >
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="工作信息" name="jobInfo">
+            <el-form ref="updateForm" :model="updateForm" label-width="80px">
+              <el-row>
+                <el-col :span="10">
+                  <el-form-item label="用户名" prop="accountName">
+                    <el-input
+                      v-model="updateForm.accountName"
+                      placeholder="请输入用户名"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="密码" prop="password">
+                    <el-input
+                      v-model="updateForm.password"
+                      placeholder="请输入密码"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="工作单位" prop="workUnit">
+                    <el-input
+                      v-model="updateForm.workUnit"
+                      placeholder="请输入工作单位"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="职称" prop="title">
+                    <el-input
+                      v-model="updateForm.title"
+                      placeholder="请输入职称"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogUpdateVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogUpdateSure">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
     <!--工具条-->
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
@@ -256,6 +375,7 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      dialogUpdateVisible: false,
       activeTab: "personInfo",
       listQuery: {
         page: 1,
@@ -265,6 +385,33 @@ export default {
       total: 0,
       listLoading: false,
       list: [],
+      updateId:"",
+      updateForm:{
+        name: "",
+        gender: "",
+        age: "",
+        idNumber: "",
+        phone: "",
+        email: "",
+        supervisor: "",
+        accountName: "",
+        password: "",
+        workUnit: "",
+        title: "",
+      },
+      resetForm:{
+        name: "",
+        gender: "",
+        age: "",
+        idNumber: "",
+        phone: "",
+        email: "",
+        supervisor: "",
+        accountName: "",
+        password: "",
+        workUnit: "",
+        title: "",
+      },
       addForm: {
         name: "",
         gender: "",
@@ -281,6 +428,9 @@ export default {
       addRules: {
         name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
         age: [{ required: true, message: "请输入年龄", trigger: ["blur"] }],
+      },
+      editRules: {
+        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
       },
     };
   },
@@ -327,6 +477,7 @@ export default {
     },
     addClick() {
       this.dialogVisible = true;
+      this.addForm = this.resetForm;
     },
     reset() {
       this.getList();
@@ -367,33 +518,44 @@ export default {
           return false;
         }
       });
-      // this.$refs['addForm'].validate((valid) => {
-      //     if (valid) {
-      //       const formData = new FormData();
-      //       formData.append("name", this.addForm.name);
-      //       axios({
-      //         method: "post",
-      //         baseURL: "",
-      //         url: "",
-      //         data: formData,
-      //       })
-      //         .then((res) => {
-      //           if (res.data.status == 0) {
-      //             this.dialogAdd = false;
-      //             this.get();
-      //           }
-      //         })
-      //         .catch((err) => {
-      //           console.log(err);
-      //         });
-      //     } else {
-      //       this.$message.error("信息不完整！");
-      //       return false;
-      //     }
-      // })
+    },
+    dialogUpdateSure(id) {
+      this.$refs["updateForm"].validate((valid) => {
+        if (valid) {
+          const counselor = {
+                id: this.updateId,
+                counselorName: this.updateForm.name,
+                phoneNum: this.updateForm.phone,
+              };
+              console.log(counselor);
+          UpdateCounselor(counselor).then((res) => {
+            console.log(res);
+            if (res.data.code === "000") {
+              this.dialogVisible = false
+                  this.getList()
+                  this.$message({
+                    message: "修改成功",
+                    type: "success",
+                  });
+            } else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+          });
+        } else {
+          this.$message.error("信息不完整！");
+          return false;
+        }
+      });
     },
     beforeLeave() {},
-    editDetail(id) {},
+    editDetail(row) {
+      console.log(row);
+      this.dialogUpdateVisible = true;
+      this.updateId = row;
+    },
   },
 };
 </script>
