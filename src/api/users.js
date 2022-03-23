@@ -21,13 +21,3 @@ export const UserMe = () => axios.get('/api/users/me');
 export const EditPassword = (oldPassword, newPassword) => axios.put(`/api/users/password?oldPassword=${oldPassword}&newPassword=${newPassword}`);
 
 export const ResetPassword = (id) => axios.put(`/api/users/reset_password?id=${id}`);
-
-export const GetTelCode = (phone) => axios.get(`/api/users/telCode?phoneNum=${phone}`);
-
-export const VerCode = (code, phone) => axios.post(`/api/users/verCode?code=${code}&phoneNum=${phone}`);
-
-export const TestEmail = () => axios.post('/api/users/testMail');
-
-export const AlarmPhone = (isOrNot) => axios.post(`/api/users/phone?isOrNot=${isOrNot}`);
-
-export const AlarmEmail = (isOrNot) => axios.post(`/api/users/email?isOrNot=${isOrNot}`);

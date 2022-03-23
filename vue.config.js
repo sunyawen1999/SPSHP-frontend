@@ -9,7 +9,7 @@ module.exports = {
     hotOnly: false,
     proxy: { // 配置跨域
       '/api': {
-        target: 'http://47.101.185.1:8515/api',
+        target: 'http://150.158.151.86:8090/api',
         ws: true,
         changOrigin: true,    //是否开启代理
         pathRewrite: {

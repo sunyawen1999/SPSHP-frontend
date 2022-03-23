@@ -151,14 +151,15 @@ export default {
       //let user = JSON.parse(sessionStorage.getItem("user"));
       let roleType = this.user.roleType;
       //let roleType = "admin";
-      if (roleType === "admin") {
+      show = true
+      /* if (roleType === "admin") {
         show = true;
         //console.log(roleType);
       } else if(roleType === "common" && meta === "task"){
         show = true;
       } else {
         show = false;
-      }
+      } */
       return show;
     },
     onSubmit() {
