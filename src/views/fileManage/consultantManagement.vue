@@ -385,8 +385,8 @@ export default {
       total: 0,
       listLoading: false,
       list: [],
-      updateId:"",
-      updateForm:{
+      updateId: "",
+      updateForm: {
         name: "",
         gender: "",
         age: "",
@@ -399,7 +399,7 @@ export default {
         workUnit: "",
         title: "",
       },
-      resetForm:{
+      resetForm: {
         name: "",
         gender: "",
         age: "",
@@ -443,7 +443,7 @@ export default {
       const para = {
         //...this.listQuery,
         page: this.listQuery.page - 1,
-        size: this.listQuery.size
+        size: this.listQuery.size,
       };
       GetCounselorList(para).then((res) => {
         if (res.data.code === "000") {
@@ -485,7 +485,7 @@ export default {
     dialogAddSure() {
       const userPara = {
         loginName: this.addForm.accountName,
-        password: this.addForm.password
+        password: this.addForm.password,
       };
       this.$refs["addFormRef"].validate((valid) => {
         if (valid) {
@@ -498,8 +498,8 @@ export default {
               };
               AddCounselor(counselor).then((res) => {
                 if (res.data.code === "000") {
-                  this.dialogVisible = false
-                  this.getList()
+                  this.dialogVisible = false;
+                  this.getList();
                   this.$message({
                     message: "添加成功",
                     type: "success",
@@ -523,20 +523,20 @@ export default {
       this.$refs["updateForm"].validate((valid) => {
         if (valid) {
           const counselor = {
-                id: this.updateId,
-                counselorName: this.updateForm.name,
-                phoneNum: this.updateForm.phone,
-              };
-              console.log(counselor);
+            id: this.updateId,
+            counselorName: this.updateForm.name,
+            phoneNum: this.updateForm.phone,
+          };
+          console.log(counselor);
           UpdateCounselor(counselor).then((res) => {
             console.log(res);
             if (res.data.code === "000") {
-              this.dialogVisible = false
-                  this.getList()
-                  this.$message({
-                    message: "修改成功",
-                    type: "success",
-                  });
+              this.dialogVisible = false;
+              this.getList();
+              this.$message({
+                message: "修改成功",
+                type: "success",
+              });
             } else {
               this.$message({
                 message: res.data.msg,
