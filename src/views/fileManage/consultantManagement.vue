@@ -1,92 +1,126 @@
 <template>
   <section>
     <div>
-    <el-dialog
-      title="添加咨询师"
-      :visible.sync="dialogVisible"
-      width="50%"
-      :destroy-on-close="false"
-      @closed="$reset('addform')"
-    >
-    <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
-       <el-tab-pane label="个人信息" name="personInfo">
-        <el-form ref="addformRef" :model="addform" 
-        :rules="addRules" label-width="80px">
-        <el-row>
-          <el-col :span="10">
-            <el-form-item label="姓名" prop="name">
-              <el-input v-model="addform.name" placeholder="请输入姓名"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="性别" prop="gender">
-              <el-radio-group v-model="addform.gender">
-                <el-radio label="1">男</el-radio>
-                <el-radio label="0">女</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="年龄" prop="age">
-              <el-input v-model="addform.age" placeholder="请输入年龄"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="身份证号码" prop="idNumber">
-              <el-input v-model="addform.idNumber" placeholder="请输入身份证号"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="电话" prop="phone">
-              <el-input v-model="addform.phone" placeholder="请输入联系电话"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="addform.email" placeholder="请输入邮箱地址"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="20">
-              <el-form-item label="绑定督导" prop="supervisor">
-              <el-select v-model="addform.supervisor" placeholder="请选择督导">
-              </el-select>
-              </el-form-item>
-            </el-col>
-            </el-row>
-          </el-form>
-       </el-tab-pane>
-       <el-tab-pane label="工作信息" name="jobInfo">
-        <el-form ref="addformRef" :model="addform" label-width="80px">
-        <el-row>
-            <el-col :span="10">
-            <el-form-item label="用户名" prop="accountName">
-              <el-input v-model="addform.accountName" placeholder="请输入用户名"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="密码" prop="password">
-              <el-input v-model="addform.password" placeholder="请输入密码"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="工作单位" prop="workUnit">
-              <el-input v-model="addform.workUnit" placeholder="请输入工作单位"></el-input>
-            </el-form-item>
-            </el-col>
-            <el-col :span="10">
-            <el-form-item label="职称" prop="title">
-              <el-input v-model="addform.title" placeholder="请输入职称"></el-input>
-            </el-form-item>
-            </el-col>
-            </el-row>
-          </el-form>
-       </el-tab-pane>
-      </el-tabs>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogAddSure">确 定</el-button>
-      </span>
-    </el-dialog>
+      <el-dialog
+        title="添加咨询师"
+        :visible.sync="dialogVisible"
+        width="50%"
+        :destroy-on-close="false"
+        @closed="$reset('addform')"
+      >
+        <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
+          <el-tab-pane label="个人信息" name="personInfo">
+            <el-form
+              ref="addformRef"
+              :model="addform"
+              :rules="addRules"
+              label-width="80px"
+            >
+              <el-row>
+                <el-col :span="10">
+                  <el-form-item label="姓名" prop="name">
+                    <el-input
+                      v-model="addform.name"
+                      placeholder="请输入姓名"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="性别" prop="gender">
+                    <el-radio-group v-model="addform.gender">
+                      <el-radio label="1">男</el-radio>
+                      <el-radio label="0">女</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="年龄" prop="age">
+                    <el-input
+                      v-model="addform.age"
+                      placeholder="请输入年龄"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="身份证号码" prop="idNumber">
+                    <el-input
+                      v-model="addform.idNumber"
+                      placeholder="请输入身份证号"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="电话" prop="phone">
+                    <el-input
+                      v-model="addform.phone"
+                      placeholder="请输入联系电话"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="邮箱" prop="email">
+                    <el-input
+                      v-model="addform.email"
+                      placeholder="请输入邮箱地址"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="20">
+                  <el-form-item label="绑定督导" prop="supervisor">
+                    <el-select
+                      v-model="addform.supervisor"
+                      placeholder="请选择督导"
+                    >
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="工作信息" name="jobInfo">
+            <el-form ref="addformRef" :model="addform" label-width="80px">
+              <el-row>
+                <el-col :span="10">
+                  <el-form-item label="用户名" prop="accountName">
+                    <el-input
+                      v-model="addform.accountName"
+                      placeholder="请输入用户名"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="密码" prop="password">
+                    <el-input
+                      v-model="addform.password"
+                      placeholder="请输入密码"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="工作单位" prop="workUnit">
+                    <el-input
+                      v-model="addform.workUnit"
+                      placeholder="请输入工作单位"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="10">
+                  <el-form-item label="职称" prop="title">
+                    <el-input
+                      v-model="addform.title"
+                      placeholder="请输入职称"
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogAddSure">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
     <!--工具条-->
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
@@ -125,7 +159,6 @@
             >搜索</el-button
           >
         </el-form-item>
-        
       </el-form>
     </el-col>
     <!--列表-->
@@ -136,12 +169,7 @@
         width="160"
         align="center"
       ></el-table-column>
-      <el-table-column
-        prop="identity"
-        label="身份"
-        width="160"
-        align="center"
-      >
+      <el-table-column prop="identity" label="身份" width="160" align="center">
       </el-table-column>
       <el-table-column
         prop="supervisor"
@@ -229,11 +257,11 @@ export default {
   data() {
     return {
       dialogVisible: false,
+      activeTab: "personInfo",
       listQuery: {
         page: 1,
         size: 10,
         nameSearch: "",
-        timeSearch: ""
       },
       total: 0,
       listLoading: false,
@@ -252,8 +280,8 @@ export default {
         title: "",
       },
       addRules: {
-        name: [{ required:true, message:'请输入姓名', trigger:[ "blur"]}],
-        age: [{ required:true, message:'请输入年龄',trigger: ["blur"] }],
+        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
+        age: [{ required: true, message: "请输入年龄", trigger: ["blur"] }],
       },
     };
   },
@@ -264,8 +292,8 @@ export default {
     getList() {
       const that = this;
       const para = {
-        ...this.listQueryGraph,
-        page: this.listQueryGraph.page - 1,
+        ...this.listQuery,
+        page: this.listQuery.page - 1,
       };
       /* GetGraphList(para).then((res) => {
         if (res.data.code === "000") {
@@ -326,8 +354,7 @@ export default {
       //     }
       // })
     },
-    beforeLeave(){
-    },
+    beforeLeave() {},
     editDetail(id) {},
   },
 };

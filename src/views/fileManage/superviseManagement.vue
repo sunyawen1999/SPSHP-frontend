@@ -231,12 +231,12 @@ import axios from "axios";
 export default {
   data() {
     return {
+      activeTab: "personInfo",
       dialogVisible: false,
       listQuery: {
         page: 1,
         size: 10,
-        nameSearch: "",
-        timeSearch: ""
+        nameSearch: ""
       },
       total: 0,
       listLoading: false,
@@ -269,8 +269,8 @@ export default {
     getList() {
       const that = this;
       const para = {
-        ...this.listQueryGraph,
-        page: this.listQueryGraph.page - 1,
+        ...this.listQuery,
+        page: this.listQuery.page - 1,
       };
       /* GetGraphList(para).then((res) => {
         if (res.data.code === "000") {
