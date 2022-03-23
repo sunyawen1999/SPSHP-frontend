@@ -124,15 +124,14 @@
 </template>
 
 <script>
-/* import {
-  GetFactoryAll,
-  GetDeviceByFactory,
-  BindUserDevice,
-  GetBindUserIdByDevice,
-} from "@/api/getData";
 import {
-  DeleteDevice
-} from "@/api/deviceInfo"; */
+  AddCustomer,
+  UpdateCustomer,
+  DeleteCustomer,
+  GetCustomerById,
+  GetCustomerList,
+} from "@/api/visitor";
+import { AddUser, UpdateUser } from "@/api/users";
 import axios from "axios";
 
 export default {
@@ -150,16 +149,17 @@ export default {
     };
   },
   mounted() {
-    //this.getList();
+    this.getList();
   },
   methods: {
     getList() {
       const that = this;
       const para = {
-        ...this.listQueryGraph,
-        page: this.listQueryGraph.page - 1,
+        //...this.listQuery,
+        page: this.listQuery.page - 1,
+        size: this.listQuery.size
       };
-      /* GetGraphList(para).then((res) => {
+      GetCustomerList(para).then((res) => {
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
@@ -169,7 +169,7 @@ export default {
             type: "error",
           });
         }
-      }); */
+      });
     },
     searchClick() {
       const that = this;
