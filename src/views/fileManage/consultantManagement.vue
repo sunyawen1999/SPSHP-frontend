@@ -6,13 +6,13 @@
         :visible.sync="dialogVisible"
         width="50%"
         :destroy-on-close="false"
-        @closed="$reset('addform')"
+        @closed="$reset('addForm')"
       >
         <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
           <el-tab-pane label="个人信息" name="personInfo">
             <el-form
-              ref="addformRef"
-              :model="addform"
+              ref="addFormRef"
+              :model="addForm"
               :rules="addRules"
               label-width="80px"
             >
@@ -20,14 +20,14 @@
                 <el-col :span="10">
                   <el-form-item label="姓名" prop="name">
                     <el-input
-                      v-model="addform.name"
+                      v-model="addForm.name"
                       placeholder="请输入姓名"
                     ></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
                   <el-form-item label="性别" prop="gender">
-                    <el-radio-group v-model="addform.gender">
+                    <el-radio-group v-model="addForm.gender">
                       <el-radio label="1">男</el-radio>
                       <el-radio label="0">女</el-radio>
                     </el-radio-group>
@@ -36,7 +36,7 @@
                 <el-col :span="10">
                   <el-form-item label="年龄" prop="age">
                     <el-input
-                      v-model="addform.age"
+                      v-model="addForm.age"
                       placeholder="请输入年龄"
                     ></el-input>
                   </el-form-item>
@@ -44,7 +44,7 @@
                 <el-col :span="10">
                   <el-form-item label="身份证号码" prop="idNumber">
                     <el-input
-                      v-model="addform.idNumber"
+                      v-model="addForm.idNumber"
                       placeholder="请输入身份证号"
                     ></el-input>
                   </el-form-item>
@@ -52,7 +52,7 @@
                 <el-col :span="10">
                   <el-form-item label="电话" prop="phone">
                     <el-input
-                      v-model="addform.phone"
+                      v-model="addForm.phone"
                       placeholder="请输入联系电话"
                     ></el-input>
                   </el-form-item>
@@ -60,7 +60,7 @@
                 <el-col :span="10">
                   <el-form-item label="邮箱" prop="email">
                     <el-input
-                      v-model="addform.email"
+                      v-model="addForm.email"
                       placeholder="请输入邮箱地址"
                     ></el-input>
                   </el-form-item>
@@ -68,7 +68,7 @@
                 <el-col :span="20">
                   <el-form-item label="绑定督导" prop="supervisor">
                     <el-select
-                      v-model="addform.supervisor"
+                      v-model="addForm.supervisor"
                       placeholder="请选择督导"
                     >
                     </el-select>
@@ -78,12 +78,12 @@
             </el-form>
           </el-tab-pane>
           <el-tab-pane label="工作信息" name="jobInfo">
-            <el-form ref="addformRef" :model="addform" label-width="80px">
+            <el-form ref="addFormRef" :model="addForm" label-width="80px">
               <el-row>
                 <el-col :span="10">
                   <el-form-item label="用户名" prop="accountName">
                     <el-input
-                      v-model="addform.accountName"
+                      v-model="addForm.accountName"
                       placeholder="请输入用户名"
                     ></el-input>
                   </el-form-item>
@@ -91,7 +91,7 @@
                 <el-col :span="10">
                   <el-form-item label="密码" prop="password">
                     <el-input
-                      v-model="addform.password"
+                      v-model="addForm.password"
                       placeholder="请输入密码"
                     ></el-input>
                   </el-form-item>
@@ -99,7 +99,7 @@
                 <el-col :span="10">
                   <el-form-item label="工作单位" prop="workUnit">
                     <el-input
-                      v-model="addform.workUnit"
+                      v-model="addForm.workUnit"
                       placeholder="请输入工作单位"
                     ></el-input>
                   </el-form-item>
@@ -107,7 +107,7 @@
                 <el-col :span="10">
                   <el-form-item label="职称" prop="title">
                     <el-input
-                      v-model="addform.title"
+                      v-model="addForm.title"
                       placeholder="请输入职称"
                     ></el-input>
                   </el-form-item>
@@ -129,7 +129,7 @@
           <el-input
             style="width: 300px"
             size="small"
-            v-model="listQuery.nameSearch"
+            v-model="listQuery.searchCondition"
             placeholder="请输入姓名进行搜索"
           >
             <!-- <i
@@ -164,7 +164,7 @@
     <!--列表-->
     <el-table :data="list" style="width: 100%">
       <el-table-column
-        prop="name"
+        prop="counselorName"
         label="姓名"
         width="160"
         align="center"
@@ -242,15 +242,14 @@
 </template>
 
 <script>
-/* import {
-  GetFactoryAll,
-  GetDeviceByFactory,
-  BindUserDevice,
-  GetBindUserIdByDevice,
-} from "@/api/getData";
 import {
-  DeleteDevice
-} from "@/api/deviceInfo"; */
+  AddCounselor,
+  UpdateCounselor,
+  DeleteCounselor,
+  GetCounselorById,
+  GetCounselorList,
+} from "@/api/consultant";
+import { AddUser, UpdateUser } from "@/api/users";
 import axios from "axios";
 
 export default {
@@ -261,12 +260,12 @@ export default {
       listQuery: {
         page: 1,
         size: 10,
-        nameSearch: "",
+        searchCondition: "",
       },
       total: 0,
       listLoading: false,
       list: [],
-      addform: {
+      addForm: {
         name: "",
         gender: "",
         age: "",
@@ -286,16 +285,17 @@ export default {
     };
   },
   mounted() {
-    //this.getList();
+    this.getList();
   },
   methods: {
     getList() {
       const that = this;
       const para = {
-        ...this.listQuery,
+        //...this.listQuery,
         page: this.listQuery.page - 1,
+        size: this.listQuery.size
       };
-      /* GetGraphList(para).then((res) => {
+      GetCounselorList(para).then((res) => {
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
@@ -305,7 +305,7 @@ export default {
             type: "error",
           });
         }
-      }); */
+      });
     },
     searchClick() {
       const that = this;
@@ -328,11 +328,49 @@ export default {
     addClick() {
       this.dialogVisible = true;
     },
+    reset() {
+      this.getList();
+    },
     dialogAddSure() {
-      // this.$refs['addform'].validate((valid) => {
+      const userPara = {
+        loginName: this.addForm.accountName,
+        password: this.addForm.password
+      };
+      this.$refs["addFormRef"].validate((valid) => {
+        if (valid) {
+          AddUser(userPara).then((res) => {
+            if (res.data.code === "000") {
+              const counselor = {
+                accountId: res.data.datas[0].id,
+                counselorName: this.addForm.name,
+                phoneNum: this.addForm.phone,
+              };
+              AddCounselor(counselor).then((res) => {
+                if (res.data.code === "000") {
+                  this.dialogVisible = false
+                  this.getList()
+                  this.$message({
+                    message: "添加成功",
+                    type: "success",
+                  });
+                }
+              });
+            } else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+          });
+        } else {
+          this.$message.error("信息不完整！");
+          return false;
+        }
+      });
+      // this.$refs['addForm'].validate((valid) => {
       //     if (valid) {
       //       const formData = new FormData();
-      //       formData.append("name", this.addform.name);
+      //       formData.append("name", this.addForm.name);
       //       axios({
       //         method: "post",
       //         baseURL: "",
