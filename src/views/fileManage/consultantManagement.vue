@@ -330,6 +330,9 @@
           <el-button type="text" @click="editDetail(scope.row.id)"
             >修改</el-button
           >
+          <el-button type="text" @click="deleteClick(scope.row.id)"
+            >删除</el-button
+          >
           <!-- <el-popconfirm
             confirmButtonText="确认"
             cancelButtonText="删除"
@@ -456,6 +459,23 @@ export default {
           });
         }
       });
+    },
+    deleteClick(id){
+      console.log(id);
+      DeleteCounselor(id).then((res) => {
+        if (res.data.code === "000") {
+            this.getList();
+            this.$message({
+              message: "删除咨询师成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      })
     },
     searchClick() {
       const that = this;
