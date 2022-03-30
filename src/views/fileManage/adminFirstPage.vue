@@ -54,6 +54,7 @@
         <el-col span="12">
             <el-card class="third-line">
                 <span>七日咨询数量统计</span>
+                <div id="graph_week"></div>
             </el-card>
         </el-col>
         <el-col span="6">
@@ -72,7 +73,7 @@
 
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
-import echarts from 'echarts'
+import * as echarts from 'echarts'
 export default {
   data() {
     return {
@@ -98,7 +99,7 @@ export default {
       let this_ = this;
       let myChart = echarts.init(document.getElementById('graph'));
       let option = {
-        color: ['#f44'],
+        color: ['#FFCC00'],
         tooltip : {
           trigger: 'axis',
           axisPointer : {
@@ -108,7 +109,7 @@ export default {
         xAxis : [
           {
             type : 'category',
-            data : ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月',],
+            data : ['0:00','4:00','8:00','12:00','16:00','20:00','24:00',],
             axisTick: {
               alignWithLabel: true
             }
@@ -121,17 +122,73 @@ export default {
         ],
         series : [
           {
-            name:'每月花费',
-            type:'bar',
-            barWidth: '60%',
-            data:[995,666,444,858,654,236,645,546,846,225,547,356]
+            name:'咨询量',
+            type:'line',
+            data:[995,666,444,858,654,236,645,546,846,225,547,356],
+            smooth:true,
+            areaStyle:{
+                normal: {
+                color: {
+                  type: "linear",
+                  x: 0,
+                  y: 0,
+                  x2: 0,
+                  y2: 1,
+                  colorStops: [
+                    {
+                      offset: 0,
+                      color: "rgba(192,255,62)"
+                    },
+                    {
+                      offset: 1,
+                      color: "rgba(255,255,224)"
+                    }
+                  ],
+                }
+              }
+            }
           }
-        ]
+        ],
       };
       myChart.setOption(option);
  
       //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
       window.addEventListener('resize',function() {myChart.resize()});
+      let myChart2 = echarts.init(document.getElementById('graph_week'));
+      let option2 = {
+        color: ['#43CD80'],
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {
+            type : 'shadow'
+          }
+        },
+        xAxis : [
+          {
+            type : 'category',
+            data : ['周一','周二','周三','周四','周五','周六','周日',],
+            axisTick: {
+              alignWithLabel: true
+            }
+          }
+        ],
+        yAxis : [
+          {
+            type : 'value'
+          }
+        ],
+        series : [
+          {
+            name:'日咨询量',
+            type:'line',
+            data:[995,666,444,858,654,236,645]
+          }
+        ]
+      };
+      myChart2.setOption(option2);
+ 
+      //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
+      window.addEventListener('resize',function() {myChart2.resize()});
   },
   methods: {
     editBtn() {
@@ -229,8 +286,17 @@ export default {
   width: 600px;
   margin-top: 10px;
 }
-.graph {
-  float: left;
+#graph {
+  width: 100%;
+  height: 100px;
+  border: 1px solid black;
+  margin: 0 auto;
+}
+#graph_week {
+  width: 100%;
+  height: 150px;
+  border: 1px solid black;
+  margin: 0 auto;
 }
 .time {
   font-size: 13px;
