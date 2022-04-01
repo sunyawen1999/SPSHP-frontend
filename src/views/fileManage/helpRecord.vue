@@ -118,15 +118,13 @@
 </template>
 
 <script>
-/* import {
-  GetFactoryAll,
-  GetDeviceByFactory,
-  BindUserDevice,
-  GetBindUserIdByDevice,
-} from "@/api/getData";
-import {
-  DeleteDevice
-} from "@/api/deviceInfo"; */
+// import {
+//   AddCounsel,
+//   UpdateCounsel,
+//   DeleteCounsel,
+//   GetCounselById,
+//   GetCounselList,
+// } from "@/api/consultation";
 import axios from "axios";
 
 export default {
@@ -147,13 +145,14 @@ export default {
     //this.getList();
   },
   methods: {
-    getList() {
+     getList() {
       const that = this;
       const para = {
-        ...this.listQueryGraph,
-        page: this.listQueryGraph.page - 1,
+        //...this.listQuery,
+        page: this.listQuery.page - 1,
+        size: this.listQuery.size
       };
-      /* GetGraphList(para).then((res) => {
+      GetCounselList(para).then((res) => {
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
@@ -163,7 +162,7 @@ export default {
             type: "error",
           });
         }
-      }); */
+      });
     },
     searchClick() {
       const that = this;
