@@ -240,6 +240,51 @@
           <el-button type="primary" @click="dialogUpdateSure">确 定</el-button>
         </span>
       </el-dialog>
+      <el-dialog
+        title="修改咨询师排班"
+        :visible.sync="dialogEditScheduleVisible"
+        width="50%"
+        :destroy-on-close="false"
+        @closed="$reset('editScheduleForm')"
+      >
+        <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
+            <el-form
+              ref="editScheduleFormRef"
+              :model="editScheduleForm"
+              :rules="editScheduleRules"
+              label-width="80px"
+            >
+                <el-col :span="10">
+                  <el-form-item label="姓名" prop="name">
+                    <el-input
+                      v-model="editScheduleForm.name"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="绑定督导" prop="supervisor">
+                    <el-select
+                      v-model="editScheduleForm.supervisor"
+                      placeholder="请选择督导"
+                    >
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                  <el-col :span="20">
+                  <el-form-item label="周值班安排" prop="weekSchedule">
+                  <el-radio-group v-model="editScheduleForm.weekSchedule"
+                  @change="handleCheckedWeeksChange"
+                  :max="7">
+                  <el-radio-button v-for="week in weeks" :label="week.id"
+                  :key="week.id">{{week.label}}</el-radio-button>
+                  </el-radio-group>
+                  </el-form-item>
+                </el-col>
+            </el-form>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogEditScheduleVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogEditScheduleSure">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
     <!--工具条-->
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
@@ -330,6 +375,9 @@
           <el-button type="text" @click="editDetail(scope.row.id)"
             >修改</el-button
           >
+          <el-button type="text" @click="editSchedule(scope.row.id)"
+            >修改排班</el-button
+          >
           <el-button type="text" @click="deleteClick(scope.row.id)"
             >删除</el-button
           >
@@ -364,6 +412,15 @@
 </template>
 
 <script>
+const weekOptions =[
+  {id:1,label:'周一'},
+  {id:2,label:'周二'},
+  {id:3,label:'周三'},
+  {id:4,label:'周四'},
+  {id:5,label:'周五'},
+  {id:6,label:'周六'},
+  {id:7,label:'周日'},
+];
 import {
   AddCounselor,
   UpdateCounselor,
@@ -377,8 +434,10 @@ import axios from "axios";
 export default {
   data() {
     return {
+      weeks:weekOptions,
       dialogVisible: false,
       dialogUpdateVisible: false,
+      dialogEditScheduleVisible: false,
       activeTab: "personInfo",
       listQuery: {
         page: 1,
@@ -389,6 +448,11 @@ export default {
       listLoading: false,
       list: [],
       updateId: "",
+      editScheduleForm:{
+        neme:"",
+        supervisor:"",
+        weekSchedule:[1],
+      },
       updateForm: {
         name: "",
         gender: "",
@@ -433,6 +497,9 @@ export default {
         age: [{ required: true, message: "请输入年龄", trigger: ["blur"] }],
       },
       editRules: {
+        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
+      },
+      editScheduleRules: {
         name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
       },
     };
@@ -539,6 +606,20 @@ export default {
         }
       });
     },
+    handleCheckAllChange(val) {
+        this.checkAll =  !!this.checkAll;
+        let checked = weekOptions.map(function(item){return item.id;});
+        this.editScheduleForm.weekSchedule = this.checkAll ? checked : [];
+        this.isIndeterminate = false;
+      },
+    handleCheckedWeeksChange(value){
+      let checkedCount = value.length;
+        this.checkAll = checkedCount === this.weeks.length;
+        this.isIndeterminate = checkedCount > 0 && checkedCount < this.weeks.length;
+    },
+    dialogEditScheduleSure(){
+
+    },
     dialogUpdateSure(id) {
       this.$refs["updateForm"].validate((valid) => {
         if (valid) {
@@ -571,6 +652,10 @@ export default {
       });
     },
     beforeLeave() {},
+    editSchedule(row) {
+      console.log(row);
+      this.dialogEditScheduleVisible = true;
+    },
     editDetail(row) {
       console.log(row);
       this.dialogUpdateVisible = true;
