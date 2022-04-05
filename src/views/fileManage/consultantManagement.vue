@@ -258,24 +258,31 @@
                   <el-form-item label="姓名" prop="name">
                     <el-input
                       v-model="editScheduleForm.name"
+                      disabled
                     ></el-input>
                   </el-form-item>
                   <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select
+                    <el-select 
                       v-model="editScheduleForm.supervisor"
                       placeholder="请选择督导"
+                      @change="handleSuperVisorChange"
                     >
+                    <el-option
+                     v-for="item in supervisorData"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id"> 
+                    </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
                   <el-col :span="20">
                   <el-form-item label="周值班安排" prop="weekSchedule">
-                  <el-radio-group v-model="editScheduleForm.weekSchedule"
-                  @change="handleCheckedWeeksChange"
-                  :max="7">
-                  <el-radio-button v-for="week in weeks" :label="week.id"
-                  :key="week.id">{{week.label}}</el-radio-button>
-                  </el-radio-group>
+                  <el-checkbox-group v-model="editScheduleForm.weekSchedule"
+                  @change="handleCheckedWeeksChange">
+                  <el-checkbox-button v-for="week in weeks" :label="week.id" border
+                  :key="week.id">{{week.label}}</el-checkbox-button>
+                  </el-checkbox-group>
                   </el-form-item>
                 </el-col>
             </el-form>
@@ -413,13 +420,13 @@
 
 <script>
 const weekOptions =[
-  {id:1,label:'周一'},
-  {id:2,label:'周二'},
-  {id:3,label:'周三'},
-  {id:4,label:'周四'},
-  {id:5,label:'周五'},
-  {id:6,label:'周六'},
-  {id:7,label:'周日'},
+  {id:"MON",label:'周一'},
+  {id:"TUE",label:'周二'},
+  {id:"WED",label:'周三'},
+  {id:"THU",label:'周四'},
+  {id:"FRI",label:'周五'},
+  {id:"SAT",label:'周六'},
+  {id:"SUN",label:'周日'},
 ];
 import {
   AddCounselor,
@@ -427,13 +434,17 @@ import {
   DeleteCounselor,
   GetCounselorById,
   GetCounselorList,
+  combineRequest,
 } from "@/api/consultant";
 import { AddUser, UpdateUser } from "@/api/users";
+import { GetSupervisorList } from "@/api/supervisor";
+import { UpdateSchedule } from "@/api/schedule";
 import axios from "axios";
 
 export default {
   data() {
     return {
+      supervisorData:[],
       weeks:weekOptions,
       dialogVisible: false,
       dialogUpdateVisible: false,
@@ -449,9 +460,11 @@ export default {
       list: [],
       updateId: "",
       editScheduleForm:{
-        neme:"",
+        name:"",
+        id:"",
         supervisor:"",
-        weekSchedule:[1],
+        weekSchedule:[],
+        weekScheduleString:"",
       },
       updateForm: {
         name: "",
@@ -507,6 +520,9 @@ export default {
   mounted() {
     this.getList();
   },
+  created() {
+     this.asyncSupervisorData();
+ },
   methods: {
     getList() {
       const that = this;
@@ -606,20 +622,60 @@ export default {
         }
       });
     },
-    handleCheckAllChange(val) {
-        this.checkAll =  !!this.checkAll;
-        let checked = weekOptions.map(function(item){return item.id;});
-        this.editScheduleForm.weekSchedule = this.checkAll ? checked : [];
-        this.isIndeterminate = false;
-      },
     handleCheckedWeeksChange(value){
-      let checkedCount = value.length;
-        this.checkAll = checkedCount === this.weeks.length;
-        this.isIndeterminate = checkedCount > 0 && checkedCount < this.weeks.length;
+      console.log(value);
+      this.editScheduleForm.weekScheduleString = JSON.stringify(value).replace(/1/g,'').replace(/"/g,'').replace(/,/g,'');
+    },
+    handleSuperVisorChange(value){
+      this.editScheduleForm.supervisor = value;
     },
     dialogEditScheduleSure(){
-
+      const combine = {
+        counselorId: this.editScheduleForm.id,
+        supervisorId: this.editScheduleForm.supervisor,
+      }
+      console.log(combine);
+      combineRequest(combine).then((res)=>{
+      if (res.data.code === "000") {
+            this.$message({
+              message: "绑定成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+          });
+        }
+      });
+      const schedule = {
+        id:this.editScheduleForm.id,
+        dayOfWeek:this.editScheduleForm.weekScheduleString
+      };
+      UpdateSchedule(schedule).then((res)=>{
+      if (res.data.code === "000") {
+            this.getList();
+            this.$message({
+              message: "修改排班成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+          });
+        }
+      });
+      this.dialogEditScheduleVisible = false;
     },
+    asyncSupervisorData(){
+      GetSupervisorList().then(res => {
+            res.data.datas[0].content.forEach(item => {
+              this.supervisorData.push({id:item.id,name:item.supervisorName});
+            })}).catch(function (error) {
+                console.log(error);
+              })
+        },
     dialogUpdateSure(id) {
       this.$refs["updateForm"].validate((valid) => {
         if (valid) {
@@ -653,7 +709,13 @@ export default {
     },
     beforeLeave() {},
     editSchedule(row) {
-      console.log(row);
+      this.editScheduleForm.id = row;
+      GetCounselorById(row).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+          this.editScheduleForm.name = res.data.datas[0].counselorName; 
+        }
+      });
       this.dialogEditScheduleVisible = true;
     },
     editDetail(row) {
