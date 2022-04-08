@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios'
 
 export const AddSchedule = (para) => axios.post('/api/schedule', para);
 

@@ -90,7 +90,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="240">
         <template slot-scope="scope">
-          <el-button type="text" @click="stopAccount(scope.row.id)"
+          <el-button type="text" @click="stopAccount(scope.row)"
             >禁用</el-button
           >
           <!-- <el-popconfirm
@@ -131,12 +131,13 @@ import {
   GetCustomerById,
   GetCustomerList,
 } from "@/api/visitor";
-import { AddUser, UpdateUser } from "@/api/users";
+import { setBan } from "@/api/users";
 import axios from "axios";
 
 export default {
   data() {
     return {
+      isBaned:true,
       listQuery: {
         page: 1,
         size: 10,
@@ -160,6 +161,7 @@ export default {
         size: this.listQuery.size
       };
       GetCustomerList(para).then((res) => {
+        console.log(res.data);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
@@ -189,7 +191,24 @@ export default {
         }
       }); */
     },
-    stopAccount(id) {},
+    stopAccount(row) {
+      console.log(row);
+      const that = this;
+      setBan(row.accountId,this.isBaned).then((res) => {
+        if (res.data.code === "000") {
+            this.getList();
+            this.$message({
+              message: "禁用账户成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      })
+    },
   },
 };
 </script>

@@ -21,3 +21,5 @@ export const UserMe = () => axios.get('/api/users/me');
 export const EditPassword = (oldPassword, newPassword) => axios.put(`/api/users/password?oldPassword=${oldPassword}&newPassword=${newPassword}`);
 
 export const ResetPassword = (id) => axios.put(`/api/users/reset_password?id=${id}`);
+
+export const setBan = (id,isBaned) => axios.put(`/api/users/setBan?id=${id}&isBaned=${isBaned}`);

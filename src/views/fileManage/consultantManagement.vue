@@ -240,6 +240,58 @@
           <el-button type="primary" @click="dialogUpdateSure">确 定</el-button>
         </span>
       </el-dialog>
+      <el-dialog
+        title="修改咨询师排班"
+        :visible.sync="dialogEditScheduleVisible"
+        width="50%"
+        :destroy-on-close="false"
+        @closed="$reset('editScheduleForm')"
+      >
+        <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
+            <el-form
+              ref="editScheduleFormRef"
+              :model="editScheduleForm"
+              :rules="editScheduleRules"
+              label-width="80px"
+            >
+                <el-col :span="10">
+                  <el-form-item label="姓名" prop="name">
+                    <el-input
+                      v-model="editScheduleForm.name"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="绑定督导" prop="supervisor">
+                    <el-select 
+                      v-model="editScheduleForm.supervisor"
+                      placeholder="请选择督导"
+                      @change="handleSuperVisorChange"
+                    >
+                    <el-option
+                     v-for="item in supervisorData"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id"> 
+                    </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                  <el-col :span="20">
+                  <el-form-item label="周值班安排" prop="weekSchedule">
+                  <el-checkbox-group v-model="editScheduleForm.weekSchedule"
+                  @change="handleCheckedWeeksChange">
+                  <el-checkbox-button v-for="week in weeks" :label="week.id" border
+                  :key="week.id">{{week.label}}</el-checkbox-button>
+                  </el-checkbox-group>
+                  </el-form-item>
+                </el-col>
+            </el-form>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogEditScheduleVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogEditScheduleSure">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
     <!--工具条-->
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
@@ -330,6 +382,9 @@
           <el-button type="text" @click="editDetail(scope.row.id)"
             >修改</el-button
           >
+          <el-button type="text" @click="editSchedule(scope.row.id)"
+            >修改排班</el-button
+          >
           <el-button type="text" @click="deleteClick(scope.row.id)"
             >删除</el-button
           >
@@ -364,21 +419,36 @@
 </template>
 
 <script>
+const weekOptions =[
+  {id:"MON",label:'周一'},
+  {id:"TUE",label:'周二'},
+  {id:"WED",label:'周三'},
+  {id:"THU",label:'周四'},
+  {id:"FRI",label:'周五'},
+  {id:"SAT",label:'周六'},
+  {id:"SUN",label:'周日'},
+];
 import {
   AddCounselor,
   UpdateCounselor,
   DeleteCounselor,
   GetCounselorById,
   GetCounselorList,
+  combineRequest,
 } from "@/api/consultant";
 import { AddUser, UpdateUser } from "@/api/users";
+import { GetSupervisorList } from "@/api/supervisor";
+import { UpdateSchedule } from "@/api/schedule";
 import axios from "axios";
 
 export default {
   data() {
     return {
+      supervisorData:[],
+      weeks:weekOptions,
       dialogVisible: false,
       dialogUpdateVisible: false,
+      dialogEditScheduleVisible: false,
       activeTab: "personInfo",
       listQuery: {
         page: 1,
@@ -389,6 +459,13 @@ export default {
       listLoading: false,
       list: [],
       updateId: "",
+      editScheduleForm:{
+        name:"",
+        id:"",
+        supervisor:"",
+        weekSchedule:[],
+        weekScheduleString:"",
+      },
       updateForm: {
         name: "",
         gender: "",
@@ -435,11 +512,17 @@ export default {
       editRules: {
         name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
       },
+      editScheduleRules: {
+        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
+      },
     };
   },
   mounted() {
     this.getList();
   },
+  created() {
+     this.asyncSupervisorData();
+ },
   methods: {
     getList() {
       const that = this;
@@ -539,6 +622,60 @@ export default {
         }
       });
     },
+    handleCheckedWeeksChange(value){
+      console.log(value);
+      this.editScheduleForm.weekScheduleString = JSON.stringify(value).replace(/1/g,'').replace(/"/g,'').replace(/,/g,'');
+    },
+    handleSuperVisorChange(value){
+      this.editScheduleForm.supervisor = value;
+    },
+    dialogEditScheduleSure(){
+      const combine = {
+        counselorId: this.editScheduleForm.id,
+        supervisorId: this.editScheduleForm.supervisor,
+      }
+      console.log(combine);
+      combineRequest(combine).then((res)=>{
+      if (res.data.code === "000") {
+            this.$message({
+              message: "绑定成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+          });
+        }
+      });
+      const schedule = {
+        id:this.editScheduleForm.id,
+        dayOfWeek:this.editScheduleForm.weekScheduleString
+      };
+      UpdateSchedule(schedule).then((res)=>{
+      if (res.data.code === "000") {
+            this.getList();
+            this.$message({
+              message: "修改排班成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+          });
+        }
+      });
+      this.dialogEditScheduleVisible = false;
+    },
+    asyncSupervisorData(){
+      GetSupervisorList().then(res => {
+            res.data.datas[0].content.forEach(item => {
+              this.supervisorData.push({id:item.id,name:item.supervisorName});
+            })}).catch(function (error) {
+                console.log(error);
+              })
+        },
     dialogUpdateSure(id) {
       this.$refs["updateForm"].validate((valid) => {
         if (valid) {
@@ -571,6 +708,16 @@ export default {
       });
     },
     beforeLeave() {},
+    editSchedule(row) {
+      this.editScheduleForm.id = row;
+      GetCounselorById(row).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+          this.editScheduleForm.name = res.data.datas[0].counselorName; 
+        }
+      });
+      this.dialogEditScheduleVisible = true;
+    },
     editDetail(row) {
       console.log(row);
       this.dialogUpdateVisible = true;
