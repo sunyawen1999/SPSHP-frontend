@@ -34,41 +34,41 @@
     <!--列表-->
     <el-table :data="list" style="width: 100%">
       <el-table-column
-        prop="name"
+        prop="customerName"
         label="姓名"
         width="160"
         align="center"
       ></el-table-column>
       <el-table-column
-        prop="gender"
+        prop="customerGender"
         label="性别"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="accountName"
+        prop="nickName"
         label="用户名"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="phone"
+        prop="phoneNum"
         label="联系电话"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="emergencyContact"
+        prop="emergencyName"
         label="紧急联系人"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="emergencyContactPhone"
+        prop="emergencyPhone"
         label="紧急联系电话"
         width="160"
         align="center"

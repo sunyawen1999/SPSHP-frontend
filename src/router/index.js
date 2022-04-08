@@ -38,17 +38,41 @@ const routes = [
         path: '/',
         component: () => import('../views/Home.vue'),
         name: '',
+        meta: 'counselorFirstPage',
+        children: [
+            {
+                path: '/firstPage',
+                component: () => import('../views/fileManage/firstPage'), name: '首页', meta: 'firstPage'
+            },
+        ]
+    },
+    {
+        path: '/',
+        component: () => import('../views/Home.vue'),
+        name: '',
+        meta: 'adminFirstPage',
+        children: [
+            {
+                path: '/adminFirstPage',
+                component: () => import('../views/fileManage/adminFirstPage'), name: '首页', meta: 'adminFirstPage'
+            },
+        ]
+    },
+    {
+        path: '/',
+        component: () => import('../views/Home.vue'),
+        name: '',
         meta: 'task',
         iconCls: 'el-icon-receiving',
         children: [
-            {
+            /* {
                 path: '/firstPage',
                 component: () => import('../views/fileManage/firstPage'), name: '首页', meta: 'firstPage'
             },
             {
                 path: '/adminFirstPage',
                 component: () => import('../views/fileManage/adminFirstPage'), name: '首页', meta: 'adminFirstPage'
-            },
+            }, */
             {
                 path: '/consultationRecords',
                 component: () => import('../views/fileManage/consultationRecords'), name: '咨询记录', meta: 'consultationRecords'
@@ -72,6 +96,10 @@ const routes = [
             {
                 path: '/visitorManagement',
                 component: () => import('../views/fileManage/visitorManagement'), name: '访客管理', meta: 'visitorManagement'
+            },
+            {
+                path: '/communication',
+                component: () => import('../views/fileManage/communication'), name: '通信', meta: 'communication'
             },
             /* {
                 path: '/taskList',

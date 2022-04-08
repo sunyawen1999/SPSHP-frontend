@@ -150,8 +150,20 @@ export default {
       let show = false;
       //let user = JSON.parse(sessionStorage.getItem("user"));
       let roleType = this.user.roleType;
+      //console.log(roleType)
       //let roleType = "admin";
-      show = true
+      //show = true
+      if (roleType === "counselor" && meta === "counselorFirstPage") {
+        show = true
+      } else if (roleType === "counselor" && meta === "task") {
+        show = true
+      } else if (roleType === "supervisor" && meta === "task") {
+        show = true
+      } else if (roleType === "supervisor" && meta === "adminFirstPage") {
+        show = true
+      } else {
+        show = true
+      }
       /* if (roleType === "admin") {
         show = true;
         //console.log(roleType);

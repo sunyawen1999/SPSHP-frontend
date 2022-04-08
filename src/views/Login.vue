@@ -85,7 +85,13 @@ export default {
                     sessionStorage.setItem("user", JSON.stringify(result));
                     
                     // Todo: 修改用户角色权限
-                    _this.$router.push({ path: "/firstPage" });
+                    if(roleType === "counselor") {
+                        _this.$router.push({ path: "/firstPage" });
+                    } else if(roleType === "supervisor") {
+                      _this.$router.push({ path: "/adminFirstPage" });
+                    } else {
+                      _this.$router.push({ path: "/firstPage" });
+                    }
 
                     // if (roleType === "superAdmin") {
                     // } else {
