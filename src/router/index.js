@@ -62,6 +62,18 @@ const routes = [
         path: '/',
         component: () => import('../views/Home.vue'),
         name: '',
+        meta: 'supervisorFirstPage',
+        children: [
+            {
+                path: '/supervisorFirstPage',
+                component: () => import('../views/fileManage/supervisorFirstPage'), name: '首页', meta: 'supervisorFirstPage'
+            },
+        ]
+    },
+    {
+        path: '/',
+        component: () => import('../views/Home.vue'),
+        name: '',
         meta: 'task',
         iconCls: 'el-icon-receiving',
         children: [
