@@ -153,16 +153,14 @@ export default {
       //console.log(roleType)
       //let roleType = "admin";
       //show = true
-      if (roleType === "counselor" && meta === "counselorFirstPage") {
+      if (roleType === "counselor" && (meta === "common" || meta === "counselorFirstPage")) {
         show = true
-      } else if (roleType === "counselor" && meta === "task") {
+      } else if (roleType === "supervisor" && (meta === "supervisorFirstPage" || meta === "common")) {
         show = true
-      } else if (roleType === "supervisor" && meta === "task") {
-        show = true
-      } else if (roleType === "supervisor" && meta === "adminFirstPage") {
+    } else if (roleType === "admin" && (meta === "adminFirstPage" || meta == "adminPages")) {
         show = true
       } else {
-        show = true
+        show = false
       }
       /* if (roleType === "admin") {
         show = true;

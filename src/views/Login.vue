@@ -86,11 +86,16 @@ export default {
                     
                     // Todo: 修改用户角色权限
                     if(roleType === "counselor") {
-                        _this.$router.push({ path: "/firstPage" });
+                        _this.$router.push({ path: "/consultantFirstPage" });
                     } else if(roleType === "supervisor") {
+                      _this.$router.push({ path: "/supervisorFirstPage" });
+                    } else if(roleType === "admin"){
                       _this.$router.push({ path: "/adminFirstPage" });
                     } else {
-                      _this.$router.push({ path: "/firstPage" });
+                      _this.$message({
+                        message: "您没有权限",
+                        type: "error"
+                      });
                     }
 
                     // if (roleType === "superAdmin") {

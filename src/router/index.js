@@ -41,8 +41,8 @@ const routes = [
         meta: 'counselorFirstPage',
         children: [
             {
-                path: '/firstPage',
-                component: () => import('../views/fileManage/firstPage'), name: '首页', meta: 'firstPage'
+                path: '/consultantFirstPage',
+                component: () => import('../views/fileManage/consultantFirstPage'), name: '首页', meta: 'consultantFirstPage'
             },
         ]
     },
@@ -74,7 +74,35 @@ const routes = [
         path: '/',
         component: () => import('../views/Home.vue'),
         name: '',
-        meta: 'task',
+        meta: 'adminPages',
+        children: [
+            {
+                path: '/consultationRecords',
+                component: () => import('../views/fileManage/consultationRecords'), name: '咨询记录', meta: 'consultationRecords'
+            },
+            {
+                path: '/schedule',
+                component: () => import('../views/fileManage/schedule'), name: '排班表', meta: 'schedule'
+            },
+            {
+                path: '/consultantManagement',
+                component: () => import('../views/fileManage/consultantManagement'), name: '咨询师管理', meta: 'consultantManagement'
+            },
+            {
+                path: '/superviseManagement',
+                component: () => import('../views/fileManage/superviseManagement'), name: '督导管理', meta: 'superviseManagement'
+            },
+            {
+                path: '/visitorManagement',
+                component: () => import('../views/fileManage/visitorManagement'), name: '访客管理', meta: 'visitorManagement'
+            },
+        ]
+    },
+    {
+        path: '/',
+        component: () => import('../views/Home.vue'),
+        name: '',
+        meta: 'common',
         iconCls: 'el-icon-receiving',
         children: [
             /* {
@@ -89,7 +117,7 @@ const routes = [
                 path: '/consultationRecords',
                 component: () => import('../views/fileManage/consultationRecords'), name: '咨询记录', meta: 'consultationRecords'
             },
-            {
+            /* {
                 path: '/schedule',
                 component: () => import('../views/fileManage/schedule'), name: '排班表', meta: 'schedule'
             },
@@ -108,7 +136,7 @@ const routes = [
             {
                 path: '/visitorManagement',
                 component: () => import('../views/fileManage/visitorManagement'), name: '访客管理', meta: 'visitorManagement'
-            },
+            }, */
             {
                 path: '/communication',
                 component: () => import('../views/fileManage/communication'), name: '通信', meta: 'communication'

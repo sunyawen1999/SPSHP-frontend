@@ -3,7 +3,7 @@
     <el-row :gutter="24">
       <el-col :span="13">
         <el-row :gutter="24">
-          <el-col :span="16">
+          <el-col :span="8">
             <el-card class="person-card">
               <div style="float: left">
                 <el-image
@@ -14,72 +14,78 @@
               </div>
               <div>
                 <span style="font-size: 18px">督导</span>
-                  <el-button
-                    type="info"
-                    plain
-                    size="small"
-                    style="margin-top: 10px"
-                    >会话设置</el-button
-                  >
-                </div>
+                <el-button
+                  type="info"
+                  plain
+                  size="small"
+                  style="margin-top: 10px"
+                  >会话设置</el-button
+                >
+              </div>
             </el-card>
           </el-col>
-          <el-col :span="16" offset="8">
+          <el-col :span="16">
             <el-card class="today-number-card">
-          <table style="margin-top:15px;rules=cols">
-            <tr>
-              <th>
-                <span style="margin-left: 40px; font-size: 10px; color: gray"
-                  >今日咨询数</span
-                >
-              </th>
-              <th>
-                <span style="margin-left: 90px; font-size: 10px; color: gray"
-                  >今日咨询时长</span
-                >
-              </th>
-            </tr>
-            <tr>
-              <td>
-                <span style="margin-left: 40px; font-size: 50px; color: black"
-                  >123</span
-                >
-              </td>
-              <td>
-                <span style="margin-left: 90px; font-size: 50px; color: black"
-                  >123</span
-                >
-              </td>
-            </tr>
-          </table>
-        </el-card>
+              <table style="margin-top:15px;rules=cols">
+                <tr>
+                  <th>
+                    <span
+                      style="margin-left: 40px; font-size: 10px; color: gray"
+                      >今日咨询数</span
+                    >
+                  </th>
+                  <th>
+                    <span
+                      style="margin-left: 90px; font-size: 10px; color: gray"
+                      >今日咨询时长</span
+                    >
+                  </th>
+                </tr>
+                <tr>
+                  <td>
+                    <span
+                      style="margin-left: 40px; font-size: 50px; color: black"
+                      >123</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      style="margin-left: 90px; font-size: 50px; color: black"
+                      >123</span
+                    >
+                  </td>
+                </tr>
+              </table>
+            </el-card>
           </el-col>
         </el-row>
         <el-row :gutter="24">
-        <el-col :span="16">
-        <div>
-        <span style="font-size: 15px">在线咨询师</span>
-        </div>
-        <el-card class="table-card">
-      <el-table :data="tableData" stripe style="width: 100%">
-        <el-table-column prop="name" label="咨询师" width="180">
-        </el-table-column>
-        <el-table-column label="状态">
-        <span style="margin-left: 15px; font-size: 10px; color: #13c013"
-            >在线</span>
-        </el-table-column>
-      </el-table>
-        </el-card>
-        </el-col>
-        <el-col :span="8" :offset="16">
-            <el-card class="number-card">
-              <div style="margin-top:20px;">
-                <span style="font-size: 10px;color: white">正在咨询</span>
-              </div>
-              <span style="font-size: 50px;color: white">12345</span>
+          <el-col :span="16">
+            <el-card class="table-card">
+              <div>
+              <span style="font-size: 15px">在线咨询师</span>
+            </div>
+              <el-table :data="tableData" stripe style="width: 100%">
+                <el-table-column prop="name" label="咨询师" width="180">
+                </el-table-column>
+                <el-table-column label="状态">
+                  <span
+                    style="margin-left: 15px; font-size: 10px; color: #13c013"
+                    >在线</span
+                  >
+                </el-table-column>
+              </el-table>
             </el-card>
-        </el-col>
-    </el-row>
+          </el-col>
+          <el-col :span="8">
+            <el-card class="number-card">
+              <div style="margin-top: 20px">
+                <span style="font-size: 10px; color: white">正在咨询</span>
+              </div>
+              <span style="font-size: 50px; color: white">12345</span>
+            </el-card>
+          </el-col>
+        </el-row>
       </el-col>
       <el-col :span="11">
         <el-card class="calendar-card">
@@ -88,37 +94,25 @@
       </el-col>
     </el-row>
     <el-row :gutter="24">
-        <div>
+      <div>
         <span style="font-size: 15px">最近完成的求助对话</span>
-        <el-button
-            type="text"
-            @click="1"
-            >查看全部>></el-button
-          >
-        </div>
-        <el-card class="table-card">
-      <el-table :data="tableData" stripe style="width: 100%">
-        <el-table-column prop="name" label="咨询师" width="180">
-        </el-table-column>
-        <el-table-column prop="duration" label="咨询时长" width="180">
-        </el-table-column>
-        <el-table-column prop="date" label="咨询日期"> </el-table-column>
-        <el-table-column label="操作">
+        <el-button type="text" @click="1">查看全部>></el-button>
+      </div>
+      <el-card class="table-card">
+        <el-table :data="tableData" stripe style="width: 100%">
+          <el-table-column prop="name" label="咨询师" width="180">
+          </el-table-column>
+          <el-table-column prop="duration" label="咨询时长" width="180">
+          </el-table-column>
+          <el-table-column prop="date" label="咨询日期"> </el-table-column>
+          <el-table-column label="操作">
             <!-- <template slot-scope="scope"> -->
-          <el-button
-            type="text"
-            @click="1"
-            >查看详情</el-button
-          >
-          <el-button
-            type="text"
-            @click="1"
-            >导出记录</el-button
-          >
-        <!-- </template> -->
-        </el-table-column>
-      </el-table>
-        </el-card>
+            <el-button type="text" @click="1">查看详情</el-button>
+            <el-button type="text" @click="1">导出记录</el-button>
+            <!-- </template> -->
+          </el-table-column>
+        </el-table>
+      </el-card>
     </el-row>
   </section>
 </template>
@@ -199,28 +193,29 @@ export default {
 .el-row {
   margin-bottom: 0;
 }
-.table{
+.table {
   border-collapse: separate;
-  border-spacing: 100px; 
+  border-spacing: 100px;
 }
 .person-card {
-  width: 50%;
+  width: 100%;
 }
 .number-card {
-  text-align: center; 
+  margin-top: 10px;
+  text-align: center;
   padding-left: 0px;
   height: 168px;
   background-color: #3b536f;
 }
 .today-number-card {
+  /* margin-top: 15px; */
+  height: 185px;
+}
+.second-table-card {
   margin-top: 15px;
   height: 155px;
 }
-.second-table-card{
-  margin-top: 15px;
-  height: 155px;
-}
-.first-line{
+.first-line {
   margin-top: 15px;
   height: 155px;
 }
@@ -228,7 +223,7 @@ export default {
   height: 390px;
 }
 .table-card {
-    margin-top: 10px
+  margin-top: 10px;
 }
 .status {
   float: left;

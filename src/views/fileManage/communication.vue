@@ -1,7 +1,5 @@
 <template>
   <section>
-    
- <button @click="fatherpost">给iframe传值</button>
       <iframe :src="TimSrc" scrolling="auto"
               frameborder="0"
               style="width: 100%; height: 850px"></iframe>
@@ -31,18 +29,16 @@ export default {
       total: 0,
       listLoading: false,
       list: [],
-      TimSrc: "http://47.101.185.1:5210/"
+      TimSrc: "",
+      user: {}
     };
   },
   mounted() {
     //this.getList();
-    this.iframeWin = this.$refs.iframe.contentWindow;
-    window.addEventListener("message", this.handleMessageFromParent)
+    this.user = JSON.parse(sessionStorage.getItem("user"));
+    this.TimSrc = `http://47.101.185.1:5210/?userID=${this.user.loginName}&password=123456`
   },
   methods: {
-    fatherpost(e){    //点击给iframe传值
-    	 this.iframeWin.postMessage("我是来自父页面的data", '*')
-    },
     getList() {
       const that = this;
       const para = {
