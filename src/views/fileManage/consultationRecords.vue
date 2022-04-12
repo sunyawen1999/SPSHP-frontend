@@ -1,6 +1,57 @@
 <template>
   <section>
     <!--工具条-->
+    <el-dialog
+        title="咨询记录详情"
+        :visible.sync="dialogDetailVisible"
+        width="50%"
+        :destroy-on-close="false"
+        @closed="$reset('detailForm')"
+      >
+        <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
+            <el-form
+              ref="detailFormRef"
+              :model="detailForm"
+              label-width="120px"
+            >
+                <el-col :span="16">
+                  <el-form-item label="咨询师ID" prop="counselorId">
+                    <el-input
+                      v-model="detailForm.counselorId"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="访客ID" prop="customerId">
+                    <el-input
+                      v-model="detailForm.customerId"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="咨询时长" prop="duration">
+                    <el-input
+                      v-model="detailForm.duration"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="咨询开始时间" prop="startTime">
+                    <el-input
+                      v-model="detailForm.startTime"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item label="咨询结束时间" prop="endTime">
+                    <el-input
+                      v-model="detailForm.endTime"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+            </el-form>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogDetailVisible = false">关闭详情</el-button>
+        </span>
+      </el-dialog>
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
       <el-form :inline="true" :model="listQuery">
         <el-form-item>
@@ -50,7 +101,7 @@
         align="center"
       ></el-table-column>
       <el-table-column
-        prop="time"
+        prop="duration"
         label="咨询时长"
         width="160"
         align="center"
@@ -64,14 +115,14 @@
       >
       </el-table-column>
       <el-table-column
-        prop="grade"
+        prop="evaluateId"
         label="咨询评级"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="evaluate"
+        prop="evaluateInfo"
         label="咨询评价"
         width="160"
         align="center"
@@ -79,7 +130,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="240">
         <template slot-scope="scope">
-          <el-button type="text" @click="seeDetail(scope.row.id)"
+          <el-button type="text" @click="seeDetail(scope.row)"
             >查看详情</el-button
           >
           <el-button type="text" @click="exportRecorder(scope.row.id)"
@@ -135,8 +186,19 @@ export default {
         timeSearch: ""
       },
       total: 0,
+      dialogDetailVisible: false,
       listLoading: false,
       list: [],
+      detailForm:{
+        counselorId: 0,
+        customerId: 0,
+        duration: 0,
+        endTime: "",
+        evaluateId: 0,
+        evaluateInfo: "",
+        historyMessage: "",
+        startTime: "",
+      },
     };
   },
   mounted() {
@@ -151,6 +213,7 @@ export default {
         size: this.listQuery.size
       };
       GetCounselList(para).then((res) => {
+        console.log(res);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
@@ -180,7 +243,19 @@ export default {
         }
       }); */
     },
-    seeDetail(id) {},
+    seeDetail(row) {
+      this.dialogDetailVisible = true;
+      GetCounselById(row.id).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+        this.detailForm.counselorId = res.data.datas[0].counselorId;
+        this.detailForm.customerId = res.data.datas[0].customerId;
+        this.detailForm.duration = res.data.datas[0].duration;
+        this.detailForm.startTime = res.data.datas[0].startTime;
+        this.detailForm.endTime = res.data.datas[0].endTime;
+        }
+      });
+    },
     exportRecorder(id) {},
   },
 };
