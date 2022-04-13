@@ -252,9 +252,9 @@
               ref="editScheduleFormRef"
               :model="editScheduleForm"
               :rules="editScheduleRules"
-              label-width="80px"
+              label-width="120px"
             >
-                <el-col :span="10">
+                <el-col :span="16">
                   <el-form-item label="姓名" prop="name">
                     <el-input
                       v-model="editScheduleForm.name"
@@ -438,7 +438,7 @@ import {
 } from "@/api/consultant";
 import { AddUser, UpdateUser } from "@/api/users";
 import { GetSupervisorList } from "@/api/supervisor";
-import { UpdateSchedule } from "@/api/schedule";
+import { UpdateSchedule,UpdateDefaultSchedule } from "@/api/schedule";
 import axios from "axios";
 
 export default {
@@ -464,7 +464,7 @@ export default {
         id:"",
         supervisor:"",
         weekSchedule:[],
-        weekScheduleString:"",
+        weekScheduleString:[],
       },
       updateForm: {
         name: "",
@@ -624,7 +624,7 @@ export default {
     },
     handleCheckedWeeksChange(value){
       console.log(value);
-      this.editScheduleForm.weekScheduleString = JSON.stringify(value).replace(/1/g,'').replace(/"/g,'').replace(/,/g,'');
+      this.editScheduleForm.weekScheduleString = value;
     },
     handleSuperVisorChange(value){
       this.editScheduleForm.supervisor = value;
@@ -650,10 +650,12 @@ export default {
       });
       const schedule = {
         id:this.editScheduleForm.id,
-        dayOfWeek:this.editScheduleForm.weekScheduleString
+        weekDaysList:this.editScheduleForm.weekScheduleString,
       };
-      UpdateSchedule(schedule).then((res)=>{
+      console.log(schedule);
+      UpdateDefaultSchedule(schedule).then((res)=>{
       if (res.data.code === "000") {
+            console.log(res.data);
             this.getList();
             this.$message({
               message: "修改排班成功",
