@@ -323,7 +323,7 @@
       <el-table-column prop="identity" label="身份" width="160" align="center">
       </el-table-column>
       <el-table-column
-        prop="consultant"
+        prop="counselorIds"
         label="绑定咨询师"
         width="160"
         align="center"

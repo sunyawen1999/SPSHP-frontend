@@ -19,6 +19,8 @@
     "element-ui": "^2.13.2",
     "moment": "^2.27.0",
     "province-city-china": "^6.0.3",
+    "tim-js-sdk": "^2.18.0",
+    "tim-upload-plugin": "^1.0.4",
     "vue": "^2.6.11",
     "vue-baidu-map": "^0.21.22",
     "vue-fullscreen": "^2.6.1",

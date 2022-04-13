@@ -343,21 +343,21 @@
       <el-table-column prop="identity" label="身份" width="160" align="center">
       </el-table-column>
       <el-table-column
-        prop="supervisor"
+        prop="supervisorIds"
         label="绑定督导"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="totalConsultNumber"
+        prop="counselNum"
         label="总咨询数"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="totalConsultTime"
+        prop="counselTime"
         label="咨询总时长"
         width="160"
         align="center"
