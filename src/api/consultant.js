@@ -13,3 +13,5 @@ export const GetCounselorList = (para) => {
 };
 
 export const combineRequest = (para) => axios.put('/api/counselor/combine', para);
+
+export const GetCounselorToday = () => axios.get('/api/counselor/today');

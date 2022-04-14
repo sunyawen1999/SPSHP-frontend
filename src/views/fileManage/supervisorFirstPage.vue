@@ -99,7 +99,7 @@
         <el-button type="text" @click="1">查看全部>></el-button>
       </div>
       <el-card class="table-card">
-        <el-table :data="tableData" stripe style="width: 100%">
+        <el-table :data="helpTableData" stripe style="width: 100%">
           <el-table-column prop="name" label="咨询师" width="180">
           </el-table-column>
           <el-table-column prop="duration" label="咨询时长" width="180">
@@ -120,6 +120,7 @@
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
 import login from "@/assets/person.png";
+import { GetCounselorToday } from "@/api/consultant";
 
 export default {
   data() {
@@ -147,6 +148,20 @@ export default {
     this.getGraph(this.graphId);
   },
   methods: {
+      getList(){
+      GetCounselorToday().then((res) => {
+        console.log(res);
+        if (res.data.code === "000") {
+
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+      
+    },
     editBtn() {
       this.saveShow = true;
     },
