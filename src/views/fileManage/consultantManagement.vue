@@ -341,6 +341,7 @@
         align="center"
       ></el-table-column>
       <el-table-column prop="identity" label="身份" width="160" align="center">
+        <span>咨询师</span>
       </el-table-column>
       <el-table-column
         prop="supervisorIds"
@@ -650,6 +651,7 @@ export default {
       });
       const schedule = {
         id:this.editScheduleForm.id,
+        isCounselor: true,
         weekDaysList:this.editScheduleForm.weekScheduleString,
       };
       console.log(schedule);

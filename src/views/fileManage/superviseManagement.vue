@@ -321,6 +321,7 @@
         align="center"
       ></el-table-column>
       <el-table-column prop="identity" label="身份" width="160" align="center">
+        <span>督导</span>
       </el-table-column>
       <el-table-column
         prop="counselorIds"

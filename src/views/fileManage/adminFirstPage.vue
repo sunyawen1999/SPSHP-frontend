@@ -41,7 +41,11 @@
     <el-row gutter="24">
       <el-col span="16">
           <el-card class="second-line">
-              <span>在线咨询师</span>
+            <span>在线咨询师</span>
+            <div>
+            <el-descriptions title="自定义样式列表" :column="3" border>
+            </el-descriptions>
+            </div>
           </el-card>
       </el-col>
       <el-col span="8">

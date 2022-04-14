@@ -60,15 +60,43 @@
         >
         <el-divider></el-divider>
         <el-table :data="counselorShowList" style="width: 100%" v-show="this.counselorShow == true">
-          <el-table-column prop="id" width="80" label="id">
+          <el-table-column prop="name" width="100" label="name">
           </el-table-column>
-          <el-table-column prop="name" width="80" label="name">
+          <el-table-column label="操作" align="center" min-width="80">
+            <template slot-scope="scope">
+              <el-popconfirm
+                confirmButtonText="确认"
+                cancelButtonText="取消"
+                icon="el-icon-info"
+                iconColor="red"
+                title="是否确认移除？"
+                @onConfirm="removeCounselor(scope.row.id)"
+              >
+                <el-button type="text" slot="reference" class="btn-text-red mx-5"
+                  >移除</el-button
+                >
+              </el-popconfirm>
+            </template>
           </el-table-column>
         </el-table>
         <el-table :data="supervisorShowList" style="width: 100%" v-show="this.counselorShow == false">
-          <el-table-column prop="id" width="80" label="id">
-          </el-table-column>
           <el-table-column prop="name" width="80" label="name">
+          </el-table-column>
+          <el-table-column label="操作" align="center" min-width="80">
+            <template slot-scope="scope">
+              <el-popconfirm
+                confirmButtonText="确认"
+                cancelButtonText="取消"
+                icon="el-icon-info"
+                iconColor="red"
+                title="是否确认移除？"
+                @onConfirm="removeSupervisor(scope.row.id)"
+              >
+                <el-button type="text" slot="reference" class="btn-text-red mx-5"
+                  >移除</el-button
+                >
+              </el-popconfirm>
+            </template>
           </el-table-column>
         </el-table>
       </el-col>
@@ -289,6 +317,7 @@ export default {
       this.counselorDialogVisible = true;
     },
     counselorAddConfirm() {
+      let counselorOrigin = []
       for(var i=0;i<this.calendarData.length;i++) {
         if(this.selectTimeShow === this.calendarData[i].day) {
           this.scheduleId = this.calendarData[i].id
@@ -297,8 +326,10 @@ export default {
       for(var i=0;i<this.scheduleList.length;i++) {
         if(this.scheduleId === this.scheduleList[i].id) {
           this.supervisorAdd = this.scheduleList[i].supervisorIds
+          counselorOrigin = this.scheduleList[i].counselorIds
         }
       }
+      this.counselorAdd = this.counselorAdd.concat(counselorOrigin)
       const para = {
         id: this.scheduleId,
         date: this.selectTimeShow,
@@ -313,6 +344,45 @@ export default {
           });
           this.getSchedule()
           this.counselorDialogVisible = false
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    removeCounselor(id) {
+      let counselor = []
+      let supervisor = []
+      for(var i=0;i<this.calendarData.length;i++) {
+        if(this.selectTimeShow === this.calendarData[i].day) {
+          this.scheduleId = this.calendarData[i].id
+        }
+      }
+      for(var i=0;i<this.scheduleList.length;i++) {
+        if(this.scheduleId === this.scheduleList[i].id) {
+          supervisor = this.scheduleList[i].supervisorIds
+          counselor = this.scheduleList[i].counselorIds
+        }
+      }
+      var new_set = new Set(counselor)
+      new_set.delete(id)
+      var newCounselor = [...new_set]
+
+      const para = {
+        id: this.scheduleId,
+        date: this.selectTimeShow,
+        counselorIds: newCounselor,
+        supervisorIds: supervisor
+      }
+      UpdateSchedule(para).then((res) => {
+        if (res.data.code === "000") {
+          this.$message({
+            message: "移除成功",
+            type: "success",
+          });
+          this.getSchedule()
         } else {
           this.$message({
             message: res.data.msg,
@@ -349,6 +419,45 @@ export default {
           });
           this.getSchedule()
           this.supervisorDialogVisible = false
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    removeSupervisor(id) {
+      let counselor = []
+      let supervisor = []
+      for(var i=0;i<this.calendarData.length;i++) {
+        if(this.selectTimeShow === this.calendarData[i].day) {
+          this.scheduleId = this.calendarData[i].id
+        }
+      }
+      for(var i=0;i<this.scheduleList.length;i++) {
+        if(this.scheduleId === this.scheduleList[i].id) {
+          supervisor = this.scheduleList[i].supervisorIds
+          counselor = this.scheduleList[i].counselorIds
+        }
+      }
+      var new_set = new Set(supervisor)
+      new_set.delete(id)
+      var newSupervisor = [...new_set]
+
+      const para = {
+        id: this.scheduleId,
+        date: this.selectTimeShow,
+        counselorIds: counselor,
+        supervisorIds: newSupervisor
+      }
+      UpdateSchedule(para).then((res) => {
+        if (res.data.code === "000") {
+          this.$message({
+            message: "移除成功",
+            type: "success",
+          });
+          this.getSchedule()
         } else {
           this.$message({
             message: res.data.msg,

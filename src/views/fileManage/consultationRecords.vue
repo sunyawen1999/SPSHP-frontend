@@ -190,10 +190,18 @@ export default {
     tim.setLogLevel(0);
     tim.registerPlugin({ "tim-upload-plugin": TIMUploadPlugin });
     this.getList();
+    console.log(this.genTestUserSig("admin").userSig)
     let promise = tim.login({ userID: this.user.loginName, userSig: this.genTestUserSig(this.user.loginName).userSig});
     promise
       .then(function (imResponse) {
         console.log(imResponse.data); // 登录成功
+        let promiseCon = tim.getMessageList({conversationID: 'C2Cuser0', count: 15});
+        promiseCon.then(function(imResponse) {
+          console.log(imResponse)
+          const messageList = imResponse.data.messageList; // 消息列表。
+          const nextReqMessageID = imResponse.data.nextReqMessageID; // 用于续拉，分页续拉时需传入该字段。
+          const isCompleted = imResponse.data.isCompleted; // 表示是否已经拉完所有消息。
+        });
         if (imResponse.data.repeatLogin === true) {
           // 标识帐号已登录，本次登录操作为重复登录。v2.5.1 起支持
           console.log(imResponse.data.errorInfo);

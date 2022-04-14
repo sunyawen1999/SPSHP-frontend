@@ -34,64 +34,75 @@
     <!--列表-->
     <el-table :data="list" style="width: 100%">
       <el-table-column
-        prop="customerName"
+        prop="customerInfo.customerName"
         label="姓名"
         width="160"
         align="center"
       ></el-table-column>
       <el-table-column
-        prop="customerGender"
+        prop="customerInfo.customerGender"
         label="性别"
         width="160"
         align="center"
       >
+      <template slot-scope="scope">
+          <span v-show="scope.row.customerInfo.customerGender === 'male'">男</span>
+          <span v-show="scope.row.customerInfo.customerGender === 'female'">女</span>
+      </template>
       </el-table-column>
       <el-table-column
-        prop="nickName"
+        prop="loginName"
         label="用户名"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="phoneNum"
+        prop="customerInfo.phoneNum"
         label="联系电话"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="emergencyName"
+        prop="customerInfo.emergencyName"
         label="紧急联系人"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="emergencyPhone"
+        prop="customerInfo.emergencyPhone"
         label="紧急联系电话"
         width="160"
         align="center"
       >
       </el-table-column>
       <el-table-column
-        prop="identity"
+        prop="roleType"
         label="身份"
         width="160"
         align="center"
       >
+          <span>访客</span>
       </el-table-column>
       <el-table-column
-        prop="accountStatus"
         label="账户状态"
         width="160"
         align="center"
       >
+      <template slot-scope="scope">
+          <span v-show="scope.row.isBaned === true">禁用</span>
+          <span v-show="scope.row.isBaned === false">启用</span>
+      </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="240">
         <template slot-scope="scope">
-          <el-button type="text" @click="stopAccount(scope.row)"
+          <el-button type="text" @click="stopAccount(scope.row)" v-show="scope.row.isBaned === false"
             >禁用</el-button
+          >
+          <el-button type="text" @click="enAccount(scope.row)" v-show="scope.row.isBaned === true"
+            >启用</el-button
           >
           <!-- <el-popconfirm
             confirmButtonText="确认"
@@ -131,6 +142,9 @@ import {
   GetCustomerById,
   GetCustomerList,
 } from "@/api/visitor";
+import {
+  GetUsersList
+} from "@/api/users"
 import { setBan } from "@/api/users";
 import axios from "axios";
 
@@ -158,9 +172,10 @@ export default {
       const para = {
         //...this.listQuery,
         page: this.listQuery.page - 1,
-        size: this.listQuery.size
+        size: this.listQuery.size,
+        roleType: "customer"
       };
-      GetCustomerList(para).then((res) => {
+      GetUsersList(para).then((res) => {
         console.log(res.data);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
