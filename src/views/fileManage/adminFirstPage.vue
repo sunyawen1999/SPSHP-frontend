@@ -42,11 +42,23 @@
       <el-col span="16">
           <el-card class="second-line">
               <span>在线咨询师</span>
+              <el-table :data="tableData" stripe style="width: 100%">
+              <el-table-column prop="name" label="咨询师" width="180">
+              </el-table-column>
+              <el-table-column prop="status" label="咨询师状态" width="180">
+               </el-table-column>
+              </el-table>
           </el-card>
       </el-col>
       <el-col span="8">
           <el-card class="second-line">
-              <span>在线咨询师</span>
+              <span>在线督导</span>
+              <el-table :data="superivisorTableData" stripe style="width: 100%">
+              <el-table-column prop="name" label="督导" width="180">
+              </el-table-column>
+              <el-table-column prop="status" label="督导状态" width="180">
+               </el-table-column>
+              </el-table>
           </el-card>
       </el-col>
     </el-row>
@@ -60,11 +72,23 @@
         <el-col span="6">
             <el-card class="third-line">
                 <span>当月咨询数量排行</span>
+                <el-table :data="monthConsultationTableData" stripe style="width: 100%">
+                <el-table-column prop="name" label="咨询师" width="180">
+                </el-table-column>
+                <el-table-column prop="sum" label="咨询数量" width="180">
+                </el-table-column>
+              </el-table>
             </el-card>
         </el-col>
         <el-col span="6">
             <el-card class="third-line">
                 <span>当月好评数量排行</span>
+                <el-table :data="monthEvaluateTableData" stripe style="width: 100%">
+                <el-table-column prop="name" label="咨询师" width="180">
+                </el-table-column>
+                <el-table-column prop="evaluateSum" label="好评数量" width="180">
+                </el-table-column>
+              </el-table>
             </el-card>
         </el-col>
     </el-row>
@@ -73,6 +97,7 @@
 
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
+import { GetCounselorToday } from "@/api/consultant";
 import * as echarts from 'echarts'
 export default {
   data() {
@@ -81,6 +106,7 @@ export default {
       currentDate: new Date(),
       rate: "",
       tableData: [],
+      superivisorTableData:[],
       form: {
         outFileName: "",
         projectName: "",
@@ -189,8 +215,22 @@ export default {
  
       //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
       window.addEventListener('resize',function() {myChart2.resize()});
+      this.getList();
   },
   methods: {
+    getList(){
+      GetCounselorToday().then((res) => {
+        console.log(res);
+        if (res.data.code === "000") {
+
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
     editBtn() {
       this.saveShow = true;
     },

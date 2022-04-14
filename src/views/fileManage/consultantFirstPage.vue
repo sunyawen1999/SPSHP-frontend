@@ -17,7 +17,7 @@
                 <span style="margin-left: 15px; font-size: 10px; color: #13c013"
                   >在线</span
                 >
-                <span style="float: right; margin-top: 4px">空闲</span>
+                <span style="float: right; margin-top: 4px">{{workStatus}}</span>
                 <div class="bottom clearfix">
                   <span style="margin-top: 20px">我的综合评价</span>
                   <el-rate v-model="rate" style="margin-top: 10px"></el-rate>
@@ -37,7 +37,7 @@
               <div style="margin-top:20px;">
                 <span style="font-size: 10px;color: white">累计完成咨询</span>
               </div>
-              <span style="font-size: 50px;color: white">12345</span>
+              <span style="font-size: 50px;color: white">{{counselNum}}</span>
             </el-card>
           </el-col>
         </el-row>
@@ -50,8 +50,8 @@
               <th><span style="margin-left:150px;font-size: 10px;color: gray">当前会话数</span></th>
             </tr>
             <tr>
-              <td><span style="margin-left:40px;font-size: 50px;color: black">123</span></td>
-              <td><span style="margin-left:150px;font-size: 50px;color: black">123</span></td>
+              <td><span style="margin-left:40px;font-size: 50px;color: black">{{counselToday}}</span></td>
+              <td><span style="margin-left:150px;font-size: 50px;color: black">{{counselTime}}</span></td>
               <td><span style="margin-left:150px;font-size: 50px;color: black">123</span></td>
             </tr>
             </table>
@@ -97,6 +97,7 @@
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
 import login from "@/assets/person.png";
+import { GetCounselorById } from "@/api/consultant";
 
 export default {
   data() {
@@ -113,17 +114,37 @@ export default {
         plotIns: "",
       },
       graphId: "",
+      counselNum:0,
+      counselToday:0,
+      counselTime:0,
+      workStatus:"",
       saveShow: false,
       fullScreenShow: false,
       teleport: true,
       pageOnly: false,
+      user:[],
     };
   },
   mounted() {
+    this.getList();
     this.graphId = this.$route.query.id;
     this.getGraph(this.graphId);
   },
   methods: {
+    getList(){
+      this.user = JSON.parse(sessionStorage.getItem("user"));
+      console.log(this.user);
+      this.counselNum = this.user.counselorInfo.counselNum;
+      this.counselToday = this.user.counselorInfo.counselToday;
+      this.counselTime = this.user.counselorInfo.counselTime;
+      if(this.user.counselorInfo.workStatus === "busy"){
+        this.workStatus = "繁忙";
+      }else{
+        this.workStatus = "空闲";
+      }
+      this.rate = this.user.counselorInfo.evaluateScore;
+      this.tableData = this.user.counselInfos;
+    },
     editBtn() {
       this.saveShow = true;
     },
