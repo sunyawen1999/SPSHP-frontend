@@ -96,22 +96,6 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
-                  <el-form-item label="工作单位" prop="workUnit">
-                    <el-input
-                      v-model="updateForm.workUnit"
-                      placeholder="请输入工作单位"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="职称" prop="title">
-                    <el-input
-                      v-model="updateForm.title"
-                      placeholder="请输入职称"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
                   <el-form-item label="督导资质" prop="credit">
                     <el-select
                       v-model="updateForm.credit"
@@ -228,22 +212,6 @@
                     <el-input
                       v-model="addForm.password"
                       placeholder="请输入密码"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="工作单位" prop="workUnit">
-                    <el-input
-                      v-model="addForm.workUnit"
-                      placeholder="请输入工作单位"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="职称" prop="title">
-                    <el-input
-                      v-model="addForm.title"
-                      placeholder="请输入职称"
                     ></el-input>
                   </el-form-item>
                 </el-col>
@@ -397,7 +365,7 @@ import {
   GetSupervisorById,
   GetSupervisorList,
 } from "@/api/supervisor";
-import { AddUser, UpdateUser } from "@/api/users";
+import { AddUser, UpdateUser, GetUserById } from "@/api/users";
 import axios from "axios";
 
 export default {
@@ -536,6 +504,14 @@ export default {
           this.updateForm.phone = res.data.datas[0].phoneNum;
           this.updateForm.email = res.data.datas[0].email;
           this.updateForm.idNumber = res.data.datas[0].idCardNum;
+          var accountId = res.data.datas[0].accountId;
+          console.log(accountId);
+          GetUserById(accountId).then((res)=>{
+            console.log(res);
+            if (res.data.code === "000"){
+              this.updateForm.accountName = res.data.datas[0].loginName;
+            }
+          });
         }else {
               this.$message({
                 message: res.data.msg,
