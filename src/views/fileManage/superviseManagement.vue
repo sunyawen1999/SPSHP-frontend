@@ -27,8 +27,8 @@
                 <el-col :span="10">
                   <el-form-item label="性别" prop="gender">
                     <el-radio-group v-model="updateForm.gender">
-                      <el-radio label="1">男</el-radio>
-                      <el-radio label="0">女</el-radio>
+                      <el-radio label="male">男</el-radio>
+                      <el-radio label="female">女</el-radio>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
@@ -88,19 +88,13 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
-                  <el-form-item label="密码" prop="password">
-                    <el-input
-                      v-model="updateForm.password"
-                      placeholder="请输入密码"
-                    ></el-input>
-                  </el-form-item>
                 </el-col>
                 <el-col :span="10">
                   <el-form-item label="督导资质" prop="credit">
-                    <el-select
+                    <el-input
                       v-model="updateForm.credit"
-                      placeholder="请选择督导资质"
-                    ></el-select>
+                      placeholder="请输入督导资质"
+                    ></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
@@ -504,6 +498,8 @@ export default {
           this.updateForm.phone = res.data.datas[0].phoneNum;
           this.updateForm.email = res.data.datas[0].email;
           this.updateForm.idNumber = res.data.datas[0].idCardNum;
+          this.updateForm.credit = res.data.datas[0].qualification;
+          this.updateForm.creditNumber = res.data.datas[0].qualificationNum;
           var accountId = res.data.datas[0].accountId;
           console.log(accountId);
           GetUserById(accountId).then((res)=>{
@@ -565,6 +561,11 @@ export default {
                 accountId: res.data.datas[0].id,
                 supervisorName: this.addForm.name,
                 phoneNum: this.addForm.phone,
+                gender:this.addForm.gender,
+                idCardNum:this.addForm.idNumber,
+                qualification:this.addForm.credit,
+                qualificationNum:this.addForm.creditNumber,
+                email:this.addForm.email,
               };
               AddSupervisor(supervisor).then((res) => {
                 if (res.data.code === "000") {

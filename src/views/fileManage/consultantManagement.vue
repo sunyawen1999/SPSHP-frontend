@@ -138,8 +138,8 @@
                 <el-col :span="10">
                   <el-form-item label="性别" prop="gender">
                     <el-radio-group v-model="updateForm.gender">
-                      <el-radio label="1">男</el-radio>
-                      <el-radio label="0">女</el-radio>
+                      <el-radio label="male">男</el-radio>
+                      <el-radio label="female">女</el-radio>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
@@ -201,17 +201,11 @@
                   <el-form-item label="用户名" prop="accountName">
                     <el-input
                       v-model="updateForm.accountName"
-                      placeholder="请输入用户名"
+                      disabled
                     ></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
-                  <el-form-item label="密码" prop="password">
-                    <el-input
-                      v-model="updateForm.password"
-                      placeholder="请输入密码"
-                    ></el-input>
-                  </el-form-item>
                 </el-col>
               </el-row>
             </el-form>
@@ -581,6 +575,11 @@ export default {
                 accountId: res.data.datas[0].id,
                 counselorName: this.addForm.name,
                 phoneNum: this.addForm.phone,
+                email: this.addForm.email,
+                gender:this.addForm.gender,
+                counselorAge:this.addForm.age,
+                idCardNum:this.addForm.idNumber,
+                supervisorIds: this.addForm.supervisor,
               };
               AddCounselor(counselor).then((res) => {
                 if (res.data.code === "000") {
@@ -669,6 +668,11 @@ export default {
             id: this.updateId,
             counselorName: this.updateForm.name,
             phoneNum: this.updateForm.phone,
+            email: this.updateForm.email,
+            gender:this.updateForm.gender,
+            counselorAge:this.updateForm.age,
+            idCardNum:this.updateForm.idNumber,
+            supervisorIds: this.updateForm.supervisor,
           };
           console.log(counselor);
           UpdateCounselor(counselor).then((res) => {
