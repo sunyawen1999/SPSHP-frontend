@@ -66,11 +66,18 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="20">
-                  <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select
+                 <el-form-item label="绑定督导" prop="supervisor">
+                    <el-select 
                       v-model="addForm.supervisor"
                       placeholder="请选择督导"
+                      @change="handleSuperVisorChange"
                     >
+                    <el-option
+                     v-for="item in supervisorData"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id"> 
+                    </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -93,22 +100,6 @@
                     <el-input
                       v-model="addForm.password"
                       placeholder="请输入密码"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="工作单位" prop="workUnit">
-                    <el-input
-                      v-model="addForm.workUnit"
-                      placeholder="请输入工作单位"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="职称" prop="title">
-                    <el-input
-                      v-model="addForm.title"
-                      placeholder="请输入职称"
                     ></el-input>
                   </el-form-item>
                 </el-col>
@@ -186,10 +177,17 @@
                 </el-col>
                 <el-col :span="20">
                   <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select
+                    <el-select 
                       v-model="updateForm.supervisor"
                       placeholder="请选择督导"
+                      @change="handleSuperVisorChange"
                     >
+                    <el-option
+                     v-for="item in supervisorData"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id"> 
+                    </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -212,22 +210,6 @@
                     <el-input
                       v-model="updateForm.password"
                       placeholder="请输入密码"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="工作单位" prop="workUnit">
-                    <el-input
-                      v-model="updateForm.workUnit"
-                      placeholder="请输入工作单位"
-                    ></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="10">
-                  <el-form-item label="职称" prop="title">
-                    <el-input
-                      v-model="updateForm.title"
-                      placeholder="请输入职称"
                     ></el-input>
                   </el-form-item>
                 </el-col>
@@ -437,7 +419,7 @@ import {
   GetCounselorList,
   combineRequest,
 } from "@/api/consultant";
-import { AddUser, UpdateUser } from "@/api/users";
+import { AddUser, UpdateUser , GetUserById } from "@/api/users";
 import { GetSupervisorList } from "@/api/supervisor";
 import { UpdateSchedule,UpdateDefaultSchedule } from "@/api/schedule";
 import axios from "axios";
@@ -692,7 +674,7 @@ export default {
           UpdateCounselor(counselor).then((res) => {
             console.log(res);
             if (res.data.code === "000") {
-              this.dialogVisible = false;
+              this.dialogUpdateVisible = false;
               this.getList();
               this.$message({
                 message: "修改成功",
@@ -718,7 +700,12 @@ export default {
         console.log(res);
         if (res.data.code === "000"){
           this.editScheduleForm.name = res.data.datas[0].counselorName; 
-        }
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
       });
       this.dialogEditScheduleVisible = true;
     },
@@ -726,6 +713,30 @@ export default {
       console.log(row);
       this.dialogUpdateVisible = true;
       this.updateId = row;
+      GetCounselorById(row).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+          this.updateForm.name = res.data.datas[0].counselorName; 
+          this.updateForm.gender = res.data.datas[0].gender;
+          this.updateForm.phone = res.data.datas[0].phoneNum;
+          this.updateForm.email = res.data.datas[0].email;
+          this.updateForm.idNumber = res.data.datas[0].idCardNum;
+          this.updateForm.age = res.data.datas[0].counselorAge;
+          var accountId = res.data.datas[0].accountId;
+          console.log(accountId);
+          GetUserById(accountId).then((res)=>{
+            console.log(res);
+            if (res.data.code === "000"){
+              this.updateForm.accountName = res.data.datas[0].loginName;
+            }
+          });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      });
     },
   },
 };
