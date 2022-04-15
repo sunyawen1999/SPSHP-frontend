@@ -528,6 +528,21 @@ export default {
       console.log(row);
       this.dialogUpdateVisible = true;
       this.updateId = row.id;
+      GetSupervisorById(row.id).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+          this.updateForm.name = res.data.datas[0].supervisorName; 
+          this.updateForm.gender = res.data.datas[0].gender;
+          this.updateForm.phone = res.data.datas[0].phoneNum;
+          this.updateForm.email = res.data.datas[0].email;
+          this.updateForm.idNumber = res.data.datas[0].idCardNum;
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      });
     },
     dialogUpdateSure(id) {
       this.$refs["updateForm"].validate((valid) => {
@@ -541,7 +556,7 @@ export default {
           UpdateSupervisor(supervisor).then((res) => {
             console.log(res);
             if (res.data.code === "000") {
-              this.dialogVisible = false;
+              this.dialogUpdateVisible = false;
               this.getList();
               this.$message({
                 message: "修改成功",

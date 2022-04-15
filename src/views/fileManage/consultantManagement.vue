@@ -66,11 +66,18 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="20">
-                  <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select
+                 <el-form-item label="绑定督导" prop="supervisor">
+                    <el-select 
                       v-model="addForm.supervisor"
                       placeholder="请选择督导"
+                      @change="handleSuperVisorChange"
                     >
+                    <el-option
+                     v-for="item in supervisorData"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id"> 
+                    </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -186,10 +193,17 @@
                 </el-col>
                 <el-col :span="20">
                   <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select
+                    <el-select 
                       v-model="updateForm.supervisor"
                       placeholder="请选择督导"
+                      @change="handleSuperVisorChange"
                     >
+                    <el-option
+                     v-for="item in supervisorData"
+                     :key="item.id"
+                     :label="item.name"
+                     :value="item.id"> 
+                    </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -692,7 +706,7 @@ export default {
           UpdateCounselor(counselor).then((res) => {
             console.log(res);
             if (res.data.code === "000") {
-              this.dialogVisible = false;
+              this.dialogUpdateVisible = false;
               this.getList();
               this.$message({
                 message: "修改成功",
@@ -718,7 +732,12 @@ export default {
         console.log(res);
         if (res.data.code === "000"){
           this.editScheduleForm.name = res.data.datas[0].counselorName; 
-        }
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
       });
       this.dialogEditScheduleVisible = true;
     },
@@ -726,6 +745,21 @@ export default {
       console.log(row);
       this.dialogUpdateVisible = true;
       this.updateId = row;
+      GetCounselorById(row).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+          this.updateForm.name = res.data.datas[0].counselorName; 
+          this.updateForm.gender = res.data.datas[0].gender;
+          this.updateForm.phone = res.data.datas[0].phoneNum;
+          this.updateForm.email = res.data.datas[0].email;
+          this.updateForm.idNumber = res.data.datas[0].idCardNum;
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      });
     },
   },
 };
