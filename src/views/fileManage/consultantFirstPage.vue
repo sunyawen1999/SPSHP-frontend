@@ -187,7 +187,18 @@ export default {
 };
 </script>
 
+<style>
+.el-calendar-table .el-calendar-day {
+    box-sizing: border-box;
+    padding: 8px;
+    height: 51px;
+}
+</style>
+
 <style scoped>
+.el-card__body {
+    padding: 0;
+}
 .el-row {
   margin-bottom: 0;
 }

@@ -386,21 +386,21 @@
           <el-button type="text" @click="editSchedule(scope.row.id)"
             >修改排班</el-button
           >
-          <el-button type="text" @click="deleteClick(scope.row.id)"
+          <!-- <el-button type="text" @click="deleteClick(scope.row.id)"
             >删除</el-button
-          >
-          <!-- <el-popconfirm
+          > -->
+          <el-popconfirm
             confirmButtonText="确认"
             cancelButtonText="删除"
             icon="el-icon-info"
             iconColor="red"
             title="是否确认删除？"
-            @onConfirm="deleteGraph(scope.row.id)"
+            @onConfirm="deleteClick(scope.row.id)"
           >
             <el-button type="text" slot="reference" class="btn-text-red mx-5"
               >删除</el-button
             >
-          </el-popconfirm> -->
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
