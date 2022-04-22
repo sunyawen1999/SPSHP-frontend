@@ -14,6 +14,7 @@
               </div>
               <div>
                 <span style="font-size: 18px">督导</span>
+                <div>
                 <el-button
                   type="info"
                   plain
@@ -21,6 +22,7 @@
                   style="margin-top: 10px"
                   >会话设置</el-button
                 >
+                </div>
               </div>
             </el-card>
           </el-col>
@@ -65,14 +67,27 @@
               <div>
               <span style="font-size: 15px">在线咨询师</span>
             </div>
-              <el-table :data="tableData" stripe style="width: 100%">
-                <el-table-column prop="name" label="咨询师" width="180">
+              <el-table
+                :data="counselorTableData"
+                style="width: 100%;margin-top: 8px"
+                :show-header="false"
+              >
+                <el-table-column
+                  prop="counselorName"
+                  label="咨询师"
+                  width="180"
+                >
                 </el-table-column>
-                <el-table-column label="状态">
-                  <span
-                    style="margin-left: 15px; font-size: 10px; color: #13c013"
-                    >在线</span
-                  >
+                <el-table-column
+                  prop="workStatus"
+                  label="咨询师状态"
+                  width="180"
+                >
+                  <template slot-scope="scope">
+                    <span v-show="scope.row.workStatus === 'idle'">空闲</span>
+                    <span v-show="scope.row.workStatus === 'busy'">忙碌</span>
+                    <span v-show="scope.row.workStatus === 'left'">忙碌</span>
+                  </template>
                 </el-table-column>
               </el-table>
             </el-card>
@@ -89,12 +104,23 @@
       </el-col>
       <el-col :span="11">
         <el-card class="calendar-card">
-          <el-calendar v-model="value"> </el-calendar>
+          <el-calendar v-model="selectTime"> 
+            <template slot="dateCell" slot-scope="{ data }">
+              <p>
+              {{ data.day.split("-").slice(2).join("-") }}
+            </p>
+            <div v-for="(item, index) in scheduleList" :key="index">
+              
+              <i class="el-icon-date" v-if="data.day == item"></i>
+              
+            </div>
+          </template>
+          </el-calendar>
         </el-card>
       </el-col>
     </el-row>
     <el-row :gutter="24">
-      <div>
+      <div style="margin-left: 15px">
         <span style="font-size: 15px">最近完成的求助对话</span>
         <el-button type="text" @click="1">查看全部>></el-button>
       </div>
@@ -121,6 +147,7 @@
 //import { GetTableLogs } from "@/api/graphAndTable";
 import login from "@/assets/person.png";
 import { GetCounselorToday } from "@/api/consultant";
+import { GetSupervisorScheduleById } from "@/api/schedule";
 
 export default {
   data() {
@@ -141,18 +168,25 @@ export default {
       fullScreenShow: false,
       teleport: true,
       pageOnly: false,
+      counselorTableData: [],
+      selectTime: new Date(),
+      scheduleList: [],
+      user:{},
     };
   },
   mounted() {
-    this.graphId = this.$route.query.id;
-    this.getGraph(this.graphId);
+    this.getSupervisorSchedule();
+    this.getCounselorToday();
   },
   methods: {
-      getList(){
-      GetCounselorToday().then((res) => {
-        console.log(res);
+      getSupervisorSchedule(){
+        this.user = JSON.parse(sessionStorage.getItem("user"));
+      GetSupervisorScheduleById(this.user.supervisorId).then((res) => {
         if (res.data.code === "000") {
-
+          this.scheduleList = res.data.datas;
+          for(var i=0;i<this.scheduleList.length;i++){
+            this.scheduleList[i] = this.scheduleList[i].substr(0,10)
+          }
         } else {
           this.$message({
             message: res.data.msg,
@@ -160,7 +194,19 @@ export default {
           });
         }
       });
-      
+    },
+    getCounselorToday() {
+      GetCounselorToday().then((res) => {
+        if (res.data.code === "000") {
+          this.counselorTableData = res.data.datas
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+            offset: 200,
+          });
+        }
+      });
     },
     editBtn() {
       this.saveShow = true;
@@ -170,18 +216,6 @@ export default {
     },
     fullScreen() {
       this.fullScreenShow = true;
-    },
-    getGraph(id) {
-      GetGraphById(id).then((res) => {
-        if (res.data.code === "000") {
-          this.form = res.data.datas[0];
-        } else {
-          this.$message({
-            message: res.data.msg,
-            type: "error",
-          });
-        }
-      });
     },
     saveBtn() {
       UpdateGraph(this.form).then((res) => {
@@ -204,6 +238,14 @@ export default {
 };
 </script>
 
+<style lang="scss" scoped>
+::v-deep .el-calendar-table .el-calendar-day {
+    box-sizing: border-box;
+    padding: 8px;
+    height: 51px;
+}
+</style>
+
 <style scoped>
 .el-row {
   margin-bottom: 0;
@@ -214,6 +256,7 @@ export default {
 }
 .person-card {
   width: 100%;
+  height: 185px;
 }
 .number-card {
   margin-top: 10px;
@@ -221,6 +264,7 @@ export default {
   padding-left: 0px;
   height: 168px;
   background-color: #3b536f;
+  height: 195px;
 }
 .today-number-card {
   /* margin-top: 15px; */
@@ -239,6 +283,7 @@ export default {
 }
 .table-card {
   margin-top: 10px;
+  height: 195px;
 }
 .status {
   float: left;

@@ -9,7 +9,7 @@
                 <el-image
                   style="width: 100px; height: 100px"
                   :src="imgUrl"
-                  :fit="fit"
+                  
                 ></el-image>
               </div>
               <div>
@@ -60,7 +60,18 @@
       </el-col>
       <el-col :span="11">
         <el-card class="calendar-card">
-          <el-calendar v-model="value"> </el-calendar>
+          <el-calendar v-model="selectTime"> 
+            <template slot="dateCell" slot-scope="{ data }">
+              <p>
+              {{ data.day.split("-").slice(2).join("-") }}
+            </p>
+            <div v-for="(item, index) in scheduleList" :key="index">
+              
+              <i class="el-icon-date" v-if="data.day == item"></i>
+              
+            </div>
+          </template>
+          </el-calendar>
         </el-card>
       </el-col>
     </el-row>
@@ -98,6 +109,7 @@
 //import { GetTableLogs } from "@/api/graphAndTable";
 import login from "@/assets/person.png";
 import { GetCounselorById } from "@/api/consultant";
+import { GetConselorScheduleById } from "@/api/schedule";
 
 export default {
   data() {
@@ -122,18 +134,19 @@ export default {
       fullScreenShow: false,
       teleport: true,
       pageOnly: false,
-      user:[],
+      user:{},
+      scheduleList: [],
+      selectTime: new Date(),
     };
   },
   mounted() {
     this.getList();
-    this.graphId = this.$route.query.id;
-    this.getGraph(this.graphId);
+    this.getCounselorSchedule();
+    this.user = JSON.parse(sessionStorage.getItem("user"));
   },
   methods: {
     getList(){
       this.user = JSON.parse(sessionStorage.getItem("user"));
-      console.log(this.user);
       this.counselNum = this.user.counselorInfo.counselNum;
       this.counselToday = this.user.counselorInfo.counselToday;
       this.counselTime = this.user.counselorInfo.counselTime;
@@ -145,6 +158,23 @@ export default {
       this.rate = this.user.counselorInfo.evaluateScore;
       this.tableData = this.user.counselInfos;
     },
+    getCounselorSchedule() {
+      console.log(this.user.counselorId)
+      GetConselorScheduleById(this.user.counselorId).then((res) => {
+        if (res.data.code === "000") {
+          this.scheduleList = res.data.datas;
+          for(var i=0;i<this.scheduleList.length;i++){
+            this.scheduleList[i] = this.scheduleList[i].substr(0,10)
+          }
+          //console.log(this.scheduleList)
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
     editBtn() {
       this.saveShow = true;
     },
@@ -154,7 +184,7 @@ export default {
     fullScreen() {
       this.fullScreenShow = true;
     },
-    getGraph(id) {
+    /* getGraph(id) {
       GetGraphById(id).then((res) => {
         if (res.data.code === "000") {
           this.form = res.data.datas[0];
@@ -165,7 +195,7 @@ export default {
           });
         }
       });
-    },
+    }, */
     saveBtn() {
       UpdateGraph(this.form).then((res) => {
         if (res.data.code === "000") {
@@ -187,8 +217,8 @@ export default {
 };
 </script>
 
-<style>
-.el-calendar-table .el-calendar-day {
+<style lang="scss" scoped>
+::v-deep .el-calendar-table .el-calendar-day {
     box-sizing: border-box;
     padding: 8px;
     height: 51px;

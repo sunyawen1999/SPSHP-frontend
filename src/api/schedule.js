@@ -13,3 +13,7 @@ export const GetScheduleList = (para) => {
 };
 
 export const UpdateDefaultSchedule = (para) => axios.put('/api/schedule/modifyWeekly', para);
+
+export const GetConselorScheduleById = (id) => axios.get(`/api/schedule/counselorSchedule?id=${id}`);
+
+export const GetSupervisorScheduleById = (id) => axios.get(`/api/schedule/supervisorSchedule?id=${id}`);

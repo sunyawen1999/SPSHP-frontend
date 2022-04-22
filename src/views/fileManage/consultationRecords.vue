@@ -76,7 +76,7 @@
     <!--列表-->
     <el-table :data="list" style="width: 100%">
       <el-table-column
-        prop="name"
+        prop="customerId"
         label="咨询人"
         width="160"
         align="center"
@@ -150,6 +150,9 @@ import {
   GetCounselById,
   GetCounselList,
 } from "@/api/consultation";
+import {
+  GetCustomerList,
+} from "@/api/visitor";
 import axios from "axios";
 import TIM from "tim-js-sdk";
 import TIMUploadPlugin from "tim-upload-plugin";
@@ -182,6 +185,7 @@ export default {
       },
       activeTab: "",
       user: {},
+      customerList: [],
     };
   },
   mounted() {
@@ -189,7 +193,6 @@ export default {
     let tim = TIM.create(this.options);
     tim.setLogLevel(0);
     tim.registerPlugin({ "tim-upload-plugin": TIMUploadPlugin });
-    this.getList();
     console.log(this.genTestUserSig("admin").userSig)
     let promise = tim.login({ userID: this.user.loginName, userSig: this.genTestUserSig(this.user.loginName).userSig});
     promise
@@ -210,6 +213,8 @@ export default {
       .catch(function (imError) {
         console.warn("login error:", imError); // 登录失败的相关信息
       });
+      this.getCustomerList();
+      this.getList();
   },
   methods: {
     login() {
@@ -293,7 +298,28 @@ export default {
         //console.log(res);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
+          for(var i=0;i<this.list.length;i++) {
+            for(var j=0;j<this.customerList.length;j++) {
+              if(this.list[i].customerId === this.customerList[j].accountId){
+                this.list[i].customerId = this.customerList[j].customerName
+                console.log("111")
+              }
+            }
+          }
           this.total = res.data.datas[0].totalElements;
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    getCustomerList() {
+      const that = this;
+      GetCustomerList().then((res) => {
+        if (res.data.code === "000") {
+          this.customerList = res.data.datas[0].content;
         } else {
           this.$message({
             message: res.data.msg,
