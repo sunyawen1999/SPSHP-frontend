@@ -77,7 +77,7 @@
             </el-form>
           </el-tab-pane>
           <el-tab-pane label="工作信息" name="jobInfo">
-            <el-form ref="updateForm" :model="updateForm" label-width="80px">
+            <el-form ref="updateForm" :model="updateForm" :rules="editRules" label-width="80px">
               <el-row>
                 <el-col :span="10">
                   <el-form-item label="用户名" prop="accountName">
@@ -191,7 +191,7 @@
             </el-form>
           </el-tab-pane>
           <el-tab-pane label="工作信息" name="jobInfo">
-            <el-form ref="addformRef" :model="addForm" label-width="80px">
+            <el-form ref="addformRef" :model="addForm" :rules="addRules" label-width="80px">
               <el-row>
                 <el-col :span="10">
                   <el-form-item label="用户名" prop="accountName">
@@ -211,10 +211,10 @@
                 </el-col>
                 <el-col :span="10">
                   <el-form-item label="督导资质" prop="credit">
-                    <el-select
+                    <el-input
                       v-model="addForm.credit"
-                      placeholder="请选择督导资质"
-                    ></el-select>
+                      placeholder="请输入督导资质"
+                    ></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
@@ -364,6 +364,88 @@ import axios from "axios";
 
 export default {
   data() {
+        // 手机号：
+	var validateMobilePhone = (rule, value, callback) => {
+	        if (value === '') {
+	          callback(new Error('手机号不可为空'));
+	        } else {
+	          if (value !== '') { 
+	            var reg=/^1[3456789]\d{9}$/;
+	            if(!reg.test(value)){
+	              callback(new Error('请输入有效的手机号码'));
+	            }
+	          }
+	          callback();
+	        }
+	      };
+// 邮箱：
+	var validateEmail = (rule, value, callback) => {
+	        if (value === '') {
+	          callback(new Error('请正确填写邮箱'));
+	        } else {
+	          if (value !== '') { 
+	            var reg=/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+	            if(!reg.test(value)){
+	              callback(new Error('请输入有效的邮箱'));
+	            }
+	          }
+	          callback();
+	        }
+	      };
+// 密码：
+	var validatePass = (rule, value, callback) => {
+	        if (value === '') {
+	          callback(new Error('密码格式不正确'));
+	        } else if(value.length < 6){
+	          callback(new Error('密码长度最小6位'))
+	        }else{
+	          callback();
+	        }
+	      };
+//用户姓名：
+
+var validateUsername = (rule, value, callback) => {
+	        if (value === '') {
+	          callback(new Error('用户名不能为空'));
+	        }else{
+	          var reg=/^([\u4e00-\u9fa5])(\s*[\u4e00-\u9fa5])*$|^[a-zA-Z0-9]+\s*[\.·\-()a-zA-Z]*[a-zA-Z]+$/;
+	          if(!reg.test(value)){
+	            callback(new Error('请输入正确的用户名'));
+	          }else{
+	            callback();
+	          }
+	        } 
+	      };
+//用户名：
+	var validateAccountname = (rule, value, callback) => {
+	        if (value === '') {
+	          callback(new Error('用户名不能为空'));
+	        }else{
+	          var reg= /^[a-zA-Z][a-zA-Z0-9_-]{5,19}$/;
+	          if(!reg.test(value)){
+	            callback(new Error('请输入正确的用户名'));
+	          }else{
+	            callback();
+	          }
+	        } 
+	      };
+//身份证号：
+	var  validateIDCard=(rule, value, callback)=>{
+	    if (value && (!(/\d{17}[\d|x]|\d{15}/).test(value) || (value.length !== 15 && value.length !== 18))) {
+	      callback(new Error('身份证号码不规范'));
+	    } else {
+	      callback()
+	    }
+	  }
+  //年龄
+	var validateIntegerP=(rule, value, callback)=> {
+	    if (value && !(/^[1-9]\d*$/).test(value)) {
+	      callback(new Error('只能填写正整数'));
+	    } else {
+	      callback()
+	    }
+	  }
+
     return {
       activeTab: "personInfo",
       dialogVisible: false,
@@ -420,11 +502,38 @@ export default {
         creditNumber: "",
       },
       addRules: {
-        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
-        age: [{ required: true, message: "请输入年龄", trigger: ["blur"] }],
+        name: [{ required: true, message: "请输入姓名",trigger: ["blur"] },
+               {validator:validateUsername,trigger: ["blur"] }],
+        age: [{ required: true,message: "请输入年龄", trigger: ["blur"] },
+              { validator:validateIntegerP, trigger: ["blur"]}],
+        phone: [{ required: true, message: "请输入手机号", trigger: ["blur"] },
+                { validator:validateMobilePhone, trigger: ["blur"]}],
+        idNumber: [{ required: true, message: "请输入身份证号",trigger: ["blur"] },
+                   { validator:validateIDCard, trigger: ["blur"]}], 
+        email:[{ required: true, message: "请输入邮箱", trigger: ["blur"] },
+                   { validator:validateEmail, trigger: ["blur"]}], 
+        password:[{ required: true, message: "请输入密码", trigger: ["blur"] },
+                   { validator:validatePass, trigger: ["blur"]}], 
+        gender:[{ required: true, message: "请选择性别", trigger: ["blur"] }],
+        accountName:[{ required: true, message: "请输入用户名", trigger: ["blur"] }],
+        credit:[{ required: true, message: "请输入督导资质", trigger: ["blur"] }],
+        creditNumber:[{ required: true, message: "请输入资质编号", trigger: ["blur"] }],
       },
       editRules: {
-        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
+        name: [{ required: true, message: "请输入姓名",trigger: ["blur"] },
+               {validator:validateUsername,trigger: ["blur"] }],
+        age: [{ required: true,message: "请输入年龄", trigger: ["blur"] },
+              { validator:validateIntegerP, trigger: ["blur"]}],
+        phone: [{ required: true, message: "请输入手机号", trigger: ["blur"] },
+                { validator:validateMobilePhone, trigger: ["blur"]}],
+        idNumber: [{ required: true, message: "请输入身份证号",trigger: ["blur"] },
+                   { validator:validateIDCard, trigger: ["blur"]}], 
+        email:[{ required: true, message: "请输入邮箱", trigger: ["blur"] },
+                   { validator:validateEmail, trigger: ["blur"]}], 
+        gender:[{ required: true, message: "请选择性别", trigger: ["blur"] }],
+        accountName:[{ required: true, message: "请输入用户名", trigger: ["blur"] }],
+        credit:[{ required: true, message: "请输入督导资质", trigger: ["blur"] }],
+        creditNumber:[{ required: true, message: "请输入资质编号", trigger: ["blur"] }],
       },
     };
   },
