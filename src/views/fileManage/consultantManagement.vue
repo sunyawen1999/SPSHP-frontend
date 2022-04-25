@@ -28,15 +28,15 @@
                 <el-col :span="10">
                   <el-form-item label="性别" prop="gender">
                     <el-radio-group v-model="addForm.gender">
-                      <el-radio label="1">男</el-radio>
-                      <el-radio label="0">女</el-radio>
+                      <el-radio label="male">男</el-radio>
+                      <el-radio label="female">女</el-radio>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
                   <el-form-item label="年龄" prop="age">
                     <el-input
-                      v-model="addForm.age"
+                      v-model.number="addForm.age"
                       placeholder="请输入年龄"
                     ></el-input>
                   </el-form-item>
@@ -146,7 +146,7 @@
                 <el-col :span="10">
                   <el-form-item label="年龄" prop="age">
                     <el-input
-                      v-model="updateForm.age"
+                      v-model.number="updateForm.age"
                       placeholder="请输入年龄"
                     ></el-input>
                   </el-form-item>
@@ -528,7 +528,7 @@ var validateUsername = (rule, value, callback) => {
       updateForm: {
         name: "",
         gender: "",
-        age: "",
+        age: 0,
         idNumber: "",
         phone: "",
         email: "",
@@ -541,7 +541,7 @@ var validateUsername = (rule, value, callback) => {
       resetForm: {
         name: "",
         gender: "",
-        age: "",
+        age: 0,
         idNumber: "",
         phone: "",
         email: "",
@@ -554,7 +554,7 @@ var validateUsername = (rule, value, callback) => {
       addForm: {
         name: "",
         gender: "",
-        age: "",
+        age: 0,
         idNumber: "",
         phone: "",
         email: "",
@@ -683,9 +683,10 @@ var validateUsername = (rule, value, callback) => {
                 gender:this.addForm.gender,
                 counselorAge:this.addForm.age,
                 idCardNum:this.addForm.idNumber,
-                supervisorIds: this.addForm.supervisor,
+                supervisorIds:[this.addForm.supervisor],
               };
               AddCounselor(counselor).then((res) => {
+                console.log(res);
                 if (res.data.code === "000") {
                   this.dialogVisible = false;
                   this.getList();
@@ -776,7 +777,7 @@ var validateUsername = (rule, value, callback) => {
             gender:this.updateForm.gender,
             counselorAge:this.updateForm.age,
             idCardNum:this.updateForm.idNumber,
-            supervisorIds: this.updateForm.supervisor,
+            supervisorIds: [this.updateForm.supervisor],
           };
           console.log(counselor);
           UpdateCounselor(counselor).then((res) => {
