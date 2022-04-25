@@ -35,7 +35,7 @@
                 <el-col :span="10">
                   <el-form-item label="年龄" prop="age">
                     <el-input
-                      v-model="updateForm.age"
+                      v-model.number="updateForm.age"
                       placeholder="请输入年龄"
                     ></el-input>
                   </el-form-item>
@@ -83,7 +83,7 @@
                   <el-form-item label="用户名" prop="accountName">
                     <el-input
                       v-model="updateForm.accountName"
-                      placeholder="请输入用户名"
+                      disabled
                     ></el-input>
                   </el-form-item>
                 </el-col>
@@ -141,15 +141,15 @@
                 <el-col :span="10">
                   <el-form-item label="性别" prop="gender">
                     <el-radio-group v-model="addForm.gender">
-                      <el-radio label="1">男</el-radio>
-                      <el-radio label="0">女</el-radio>
+                      <el-radio label="male">男</el-radio>
+                      <el-radio label="female">女</el-radio>
                     </el-radio-group>
                   </el-form-item>
                 </el-col>
                 <el-col :span="10">
                   <el-form-item label="年龄" prop="age">
                     <el-input
-                      v-model="addForm.age"
+                      v-model.number="addForm.age"
                       placeholder="请输入年龄"
                     ></el-input>
                   </el-form-item>
@@ -462,7 +462,7 @@ var validateUsername = (rule, value, callback) => {
       updateForm: {
         name: "",
         gender: "",
-        age: "",
+        age: 0,
         idNumber: "",
         phone: "",
         email: "",
@@ -476,7 +476,7 @@ var validateUsername = (rule, value, callback) => {
       resetForm: {
         name: "",
         gender: "",
-        age: "",
+        age: 0,
         idNumber: "",
         phone: "",
         email: "",
@@ -490,7 +490,7 @@ var validateUsername = (rule, value, callback) => {
       addForm: {
         name: "",
         gender: "",
-        age: "",
+        age: 0,
         idNumber: "",
         phone: "",
         email: "",
@@ -632,6 +632,11 @@ var validateUsername = (rule, value, callback) => {
             id: this.updateId,
             supervisorName: this.updateForm.name,
             phoneNum: this.updateForm.phone,
+            gender:this.updateForm.gender,
+            idCardNum:this.updateForm.idNumber,
+            qualification:this.updateForm.credit,
+            qualificationNum:this.updateForm.creditNumber,
+            email:this.updateForm.email,
           };
           console.log(supervisor);
           UpdateSupervisor(supervisor).then((res) => {
