@@ -98,10 +98,10 @@
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="240">
         <template slot-scope="scope">
-          <el-button type="text" @click="stopAccount(scope.row)" v-show="scope.row.isBaned === false"
+          <el-button type="text" @click="stopAccount(scope.row.id)" v-show="scope.row.isBaned === false"
             >禁用</el-button
           >
-          <el-button type="text" @click="enAccount(scope.row)" v-show="scope.row.isBaned === true"
+          <el-button type="text" @click="enAccount(scope.row.id)" v-show="scope.row.isBaned === true"
             >启用</el-button
           >
           <!-- <el-popconfirm
@@ -206,14 +206,32 @@ export default {
         }
       }); */
     },
-    stopAccount(row) {
-      console.log(row);
-      const that = this;
-      setBan(row.accountId,this.isBaned).then((res) => {
+    stopAccount(id) {
+      //console.log(id);
+      this.isBaned = true
+      setBan(id,this.isBaned).then((res) => {
         if (res.data.code === "000") {
             this.getList();
             this.$message({
               message: "禁用账户成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      })
+    },
+    enAccount(id) {
+      //console.log(id);
+      this.isBaned = false
+      setBan(id,this.isBaned).then((res) => {
+        if (res.data.code === "000") {
+            this.getList();
+            this.$message({
+              message: "启用账户成功",
               type: "success",
             });
         }else {

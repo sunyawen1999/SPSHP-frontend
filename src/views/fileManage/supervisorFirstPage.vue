@@ -47,13 +47,13 @@
                   <td>
                     <span
                       style="margin-left: 40px; font-size: 50px; color: black"
-                      >123</span
+                      >{{user.supervisorInfo.counselToday}}</span
                     >
                   </td>
                   <td>
                     <span
                       style="margin-left: 90px; font-size: 50px; color: black"
-                      >123</span
+                      >{{user.supervisorInfo.counselTime}}</span
                     >
                   </td>
                 </tr>
@@ -175,6 +175,7 @@ export default {
     };
   },
   mounted() {
+    this.user = JSON.parse(sessionStorage.getItem("user"));
     this.getSupervisorSchedule();
     this.getCounselorToday();
   },
