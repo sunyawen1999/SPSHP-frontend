@@ -65,22 +65,6 @@
                     ></el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="20">
-                 <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select 
-                      v-model="addForm.supervisor"
-                      placeholder="请选择督导"
-                      @change="handleSuperVisorChange"
-                    >
-                    <el-option
-                     v-for="item in supervisorData"
-                     :key="item.id"
-                     :label="item.name"
-                     :value="item.id"> 
-                    </el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
               </el-row>
             </el-form>
           </el-tab-pane>
@@ -175,22 +159,6 @@
                     ></el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="20">
-                  <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select 
-                      v-model="updateForm.supervisor"
-                      placeholder="请选择督导"
-                      @change="handleSuperVisorChange"
-                    >
-                    <el-option
-                     v-for="item in supervisorData"
-                     :key="item.id"
-                     :label="item.name"
-                     :value="item.id"> 
-                    </el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
               </el-row>
             </el-form>
           </el-tab-pane>
@@ -238,18 +206,18 @@
                     ></el-input>
                   </el-form-item>
                   <el-form-item label="绑定督导" prop="supervisor">
-                    <el-select 
+                    <el-checkbox-group
                       v-model="editScheduleForm.supervisor"
                       placeholder="请选择督导"
                       @change="handleSuperVisorChange"
                     >
-                    <el-option
+                    <el-checkbox
                      v-for="item in supervisorData"
                      :key="item.id"
-                     :label="item.name"
-                     :value="item.id"> 
-                    </el-option>
-                    </el-select>
+                     :label="item.id">
+                     {{item.name}}
+                    </el-checkbox>
+                    </el-checkbox-group>
                   </el-form-item>
                 </el-col>
                   <el-col :span="20">
@@ -521,7 +489,7 @@ var validateUsername = (rule, value, callback) => {
       editScheduleForm:{
         name:"",
         id:"",
-        supervisor:"",
+        supervisor:[],
         weekSchedule:[],
         weekScheduleString:[],
       },
@@ -710,16 +678,18 @@ var validateUsername = (rule, value, callback) => {
       });
     },
     handleCheckedWeeksChange(value){
-      console.log(value);
       this.editScheduleForm.weekScheduleString = value;
     },
     handleSuperVisorChange(value){
+      console.log(value);
       this.editScheduleForm.supervisor = value;
     },
     dialogEditScheduleSure(){
+      let supervisorIds = JSON.parse(JSON.stringify(this.editScheduleForm.supervisor));
+      for(let i=0;i<supervisorIds.length;i++){
       const combine = {
         counselorId: this.editScheduleForm.id,
-        supervisorId: this.editScheduleForm.supervisor,
+        supervisorId: supervisorIds[i],
       }
       console.log(combine);
       combineRequest(combine).then((res)=>{
@@ -735,6 +705,7 @@ var validateUsername = (rule, value, callback) => {
           });
         }
       });
+      }
       const schedule = {
         id:this.editScheduleForm.id,
         isCounselor: true,
