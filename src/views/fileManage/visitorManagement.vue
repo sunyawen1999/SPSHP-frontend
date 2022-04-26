@@ -39,7 +39,7 @@
         width="160"
         align="center"
       ></el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         prop="customerInfo.customerGender"
         label="性别"
         width="160"
@@ -49,7 +49,7 @@
           <span v-show="scope.row.customerInfo.customerGender === 'male'">男</span>
           <span v-show="scope.row.customerInfo.customerGender === 'female'">女</span>
       </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         prop="loginName"
         label="用户名"

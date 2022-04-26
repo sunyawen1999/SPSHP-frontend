@@ -11,3 +11,5 @@ export const GetCounselById = (id) => axios.get(`/api/counsel/${id}`);
 export const GetCounselList = (para) => {
     return axios.get('/api/counsel/list', { params: para });
 };
+
+export const GetCounselByCounselor = (id) => axios.get(`/api/counsel/counselor/${id}`);

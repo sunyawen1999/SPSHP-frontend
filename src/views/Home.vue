@@ -2,7 +2,7 @@
   <el-container class="container">
     <el-aside width="200px">
       <div class="top-title">
-        欢迎，xxxx
+        欢迎，{{this.trans[this.user.roleType]}}{{this.user.loginName}}
       </div>
       <el-menu
         :default-active="$route.path"
@@ -128,11 +128,17 @@ export default {
       sysUserName: "",
       othUserName: "",
       sysUserAvatar: "",
-      user: {}
+      user: {},
+      trans: {
+        'counselor': '咨询师',
+        'supervisor': '督导',
+        'admin': '系统管理员'
+      }
     };
   },
   mounted() {
     this.user = JSON.parse(sessionStorage.getItem("user"));
+    //this.user.roleType = this.trans[this.user.roleType]
   },
   methods: {
     showItem(name) {
@@ -370,7 +376,7 @@ export default {
     .top-title {
       //background: url(../assets/login.png) no-repeat;
       height: 58px;
-      width: 58px;
+      width: 90px;
       background-size: 58px 59px;
       margin-left: 86px;
       margin-top: 26px;

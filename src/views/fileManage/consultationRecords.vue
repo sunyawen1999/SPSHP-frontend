@@ -87,21 +87,33 @@
         width="160"
         align="center"
       >
+      <!-- <template slot-scope="scope">
+          <span>{{this.formatSeconds(scope.row.duration)}}</span>
+        </template> -->
       </el-table-column>
-      <el-table-column prop="date" label="咨询日期" width="160" align="center">
+      <el-table-column prop="startTime" label="咨询日期" width="160" align="center">
       </el-table-column>
       <el-table-column
-        prop="evaluateId"
+        prop="evaluateInfo.starToCounselor"
         label="咨询评级"
         width="160"
         align="center"
       >
+      <template slot-scope="scope">
+        <el-rate
+          v-model="scope.row.evaluateInfo.starToCounselor"
+          disabled
+          text-color="#ff9900"
+          score-template="{value}">
+      </el-rate>
+      </template>
       </el-table-column>
       <el-table-column
-        prop="evaluateInfo"
+        prop="evaluateInfo.infoToCounselor"
         label="咨询评价"
         width="160"
         align="center"
+        :formatter="numberFormat"
       >
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="240">
@@ -298,13 +310,15 @@ export default {
         //console.log(res);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
+          console.log(this.customerList)
           for(var i=0;i<this.list.length;i++) {
             for(var j=0;j<this.customerList.length;j++) {
-              if(this.list[i].customerId === this.customerList[j].accountId){
+              if(this.list[i].customerId === this.customerList[j].id){
                 this.list[i].customerId = this.customerList[j].customerName
-                console.log("111")
               }
             }
+            this.list[i].duration = this.formatSeconds(this.list[i].duration)
+            this.list[i].startTime = this.list[i].startTime.substr(0,10) + " " + this.list[i].startTime.substr(11,8)
           }
           this.total = res.data.datas[0].totalElements;
         } else {
@@ -328,6 +342,37 @@ export default {
         }
       });
     },
+    numberFormat(row, column, cellValue) {
+      // console.log(row , column , cellValue)
+      if (!cellValue) return "";
+      if (cellValue.length > 10) {
+        //最长固定显示4个字符
+        return cellValue.slice(0, 10) + "...";
+      }
+      return cellValue;
+    },
+    formatSeconds(value) {
+				var secondTime = parseInt(value) // 秒
+				var minuteTime = 0 // 分
+				var hourTime = 0 // 小时
+				if (secondTime >= 60) {
+					minuteTime = parseInt(secondTime / 60)
+					secondTime = parseInt(secondTime % 60)
+					if (minuteTime >= 60) {
+						hourTime = parseInt(minuteTime / 60)
+						minuteTime = parseInt(minuteTime % 60)
+					}
+				}
+				var result ="" +(parseInt(secondTime) < 10? "0" + parseInt(secondTime): parseInt(secondTime))
+
+				// if (minuteTime > 0) {
+					result ="" + (parseInt(minuteTime) < 10? "0" + parseInt(minuteTime) : parseInt(minuteTime)) + ":" + result
+				// }
+				// if (hourTime > 0) {
+					result ="" + (parseInt(hourTime) < 10 ? "0" + parseInt(hourTime): parseInt(hourTime)) +":" + result
+				// }
+				return result
+			},
     searchClick() {
       const that = this;
       const para = {

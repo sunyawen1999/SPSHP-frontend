@@ -341,7 +341,7 @@
       >
       </el-table-column>
       <el-table-column
-        prop="averageConsultGrade"
+        prop="comCount"
         label="平均咨询等级"
         width="160"
         align="center"
@@ -464,12 +464,12 @@ var validateUsername = (rule, value, callback) => {
 	        if (value === '') {
 	          callback(new Error('用户名不能为空'));
 	        }else{
-	          var reg=/^([\u4e00-\u9fa5])(\s*[\u4e00-\u9fa5])*$|^[a-zA-Z0-9]+\s*[\.·\-()a-zA-Z]*[a-zA-Z]+$/;
+	          /* var reg=/^([\u4e00-\u9fa5])(\s*[\u4e00-\u9fa5])*$|^[a-zA-Z0-9]+\s*[\.·\-()a-zA-Z]*[a-zA-Z]+$/;
 	          if(!reg.test(value)){
 	            callback(new Error('请输入正确的用户名'));
 	          }else{
 	            callback();
-	          }
+	          } */
 	        } 
 	      };
 //用户名：
@@ -600,6 +600,7 @@ var validateUsername = (rule, value, callback) => {
   },
   mounted() {
     this.getList();
+    //this.getSupervisorList();
   },
   created() {
      this.asyncSupervisorData();
@@ -616,6 +617,19 @@ var validateUsername = (rule, value, callback) => {
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
+          for(var i=0;i<this.list.length;i++) {
+            this.list[i].counselTime = this.formatSeconds(this.list[i].counselTime)
+            for(var j=0;j<this.list[i].supervisorIds.length;j++) {
+              for(var k=0;k<this.supervisorData.length;k++) {
+                if(this.list[i].supervisorIds[j] === this.supervisorData[k].id) {
+                  this.list[i].supervisorIds[j] = this.supervisorData[k].name + " "
+                }
+              }
+            }
+            if(this.list[i].comCount != 0) {
+              this.list[i].comCount = this.list[i].evaluateScore/this.list[i].comCount
+            }
+          }
         } else {
           this.$message({
             message: res.data.msg,
@@ -624,6 +638,19 @@ var validateUsername = (rule, value, callback) => {
         }
       });
     },
+    /* getSupervisorList() {
+      const that = this;
+      GetSupervisorList(para).then((res) => {
+        if (res.data.code === "000") {
+          this.supervisorList = res.data.datas[0].content;
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    }, */
     deleteClick(id){
       console.log(id);
       DeleteCounselor(id).then((res) => {
@@ -709,6 +736,28 @@ var validateUsername = (rule, value, callback) => {
         }
       });
     },
+    formatSeconds(value) {
+				var secondTime = parseInt(value) // 秒
+				var minuteTime = 0 // 分
+				var hourTime = 0 // 小时
+				if (secondTime >= 60) {
+					minuteTime = parseInt(secondTime / 60)
+					secondTime = parseInt(secondTime % 60)
+					if (minuteTime >= 60) {
+						hourTime = parseInt(minuteTime / 60)
+						minuteTime = parseInt(minuteTime % 60)
+					}
+				}
+				var result ="" +(parseInt(secondTime) < 10? "0" + parseInt(secondTime): parseInt(secondTime))
+
+				// if (minuteTime > 0) {
+					result ="" + (parseInt(minuteTime) < 10? "0" + parseInt(minuteTime) : parseInt(minuteTime)) + ":" + result
+				// }
+				// if (hourTime > 0) {
+					result ="" + (parseInt(hourTime) < 10 ? "0" + parseInt(hourTime): parseInt(hourTime)) +":" + result
+				// }
+				return result
+			},
     handleCheckedWeeksChange(value){
       console.log(value);
       this.editScheduleForm.weekScheduleString = value;
