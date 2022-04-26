@@ -213,6 +213,7 @@
 
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
+import { GetCounselWeekAll, GetCounselTodayAll } from "@/api/consultation";
 import { GetCounselorToday, GetCounselorList } from "@/api/consultant";
 import {
   GetSupervisorList,
@@ -251,10 +252,35 @@ export default {
       fullScreenShow: false,
       teleport: true,
       pageOnly: false,
+      graphWeekDate:[],
+      graphWeekNum:[],
+      graphTodayNum:[],
+      graphTodayTime:[],
     };
   },
   mounted() {
     let this_ = this;
+    //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
+    this.initChart();
+    this.initChart2();
+    this.getCounselorList();
+    this.getSupervisorList();
+    this.getList();
+  },
+  methods: {
+  initChart(){
+    let tabledata = [];
+    GetCounselTodayAll().then((res) => {
+         console.log(res.data.datas);
+         if (res.data.code === "000") {
+           tabledata =  JSON.parse(JSON.stringify(res.data.datas));
+           for(let i=0;i<6;i++){
+            this.graphTodayNum[i]=tabledata[i].counselNum;
+            this.graphTodayTime[i]=tabledata[i].duringTime.slice(11,16);
+            }
+         }
+    let graphTodayTimeArr = JSON.parse(JSON.stringify(this.graphTodayTime));
+    let graphTodayNumArr = JSON.parse(JSON.stringify(this.graphTodayNum));
     let myChart = echarts.init(document.getElementById("graph"));
     let option = {
       color: ["#FFCC00"],
@@ -267,7 +293,7 @@ export default {
       xAxis: [
         {
           type: "category",
-          data: ["0:00", "4:00", "8:00", "12:00", "16:00", "20:00", "24:00"],
+          data: graphTodayTimeArr,
           axisTick: {
             alignWithLabel: true,
           },
@@ -282,7 +308,7 @@ export default {
         {
           name: "咨询量",
           type: "line",
-          data: [995, 666, 444, 858, 654, 236, 645, 546, 846, 225, 547, 356],
+          data: graphTodayNumArr,
           smooth: true,
           areaStyle: {
             normal: {
@@ -314,6 +340,21 @@ export default {
     window.addEventListener("resize", function () {
       myChart.resize();
     });
+   });
+  },
+  initChart2(){
+    let tabledata = [];
+    GetCounselWeekAll().then((res) => {
+         console.log(res.data.datas);
+         if (res.data.code === "000") {
+           tabledata =  JSON.parse(JSON.stringify(res.data.datas));
+           for(let i=0;i<7;i++){
+            this.graphWeekNum[i]=tabledata[i].counselNum;
+            this.graphWeekDate[i]=tabledata[i].duringTime.slice(0,3);
+            }
+         }
+    let graphWeekDateArr = JSON.parse(JSON.stringify(this.graphWeekDate));
+    let graphWeekNumArr = JSON.parse(JSON.stringify(this.graphWeekNum));
     let myChart2 = echarts.init(document.getElementById("graph_week"));
     let option2 = {
       color: ["#43CD80"],
@@ -326,7 +367,7 @@ export default {
       xAxis: [
         {
           type: "category",
-          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+          data: graphWeekDateArr,
           axisTick: {
             alignWithLabel: true,
           },
@@ -341,24 +382,19 @@ export default {
         {
           name: "日咨询量",
           type: "line",
-          data: [995, 666, 444, 858, 654, 236, 645],
+          data:graphWeekNumArr,
         },
       ],
     };
     myChart2.setOption(option2);
-
-    //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
     window.addEventListener("resize", function () {
-      myChart2.resize();
+    myChart2.resize();
     });
-    this.getList();
-    this.getCounselorList();
-    this.getSupervisorList();
+   });
   },
-  methods: {
     getList() {
       GetCounselorToday().then((res) => {
-        console.log(res);
+        console.log(res.data.datas);
         if (res.data.code === "000") {
         } else {
           this.$message({
