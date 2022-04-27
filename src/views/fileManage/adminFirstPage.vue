@@ -19,12 +19,12 @@
             <tr>
               <td>
                 <span style="margin-left: 40px; font-size: 50px; color: black"
-                  >123</span
+                  >{{numAll}}</span
                 >
               </td>
               <td>
                 <span style="margin-left: 90px; font-size: 50px; color: black"
-                  >123</span
+                  >{{timeAllShow}}</span
                 >
               </td>
             </tr>
@@ -185,13 +185,13 @@
         <el-card class="third-line">
           <span>当月咨询数量排行</span>
           <el-table
-            :data="monthConsultationTableData"
+            :data="numRankList"
             stripe
             style="width: 100%"
           >
-            <el-table-column prop="name" label="咨询师" width="180">
+            <el-table-column prop="counselorName" label="咨询师" width="180">
             </el-table-column>
-            <el-table-column prop="sum" label="咨询数量" width="180">
+            <el-table-column prop="counselNum" label="咨询数量" width="180">
             </el-table-column>
           </el-table>
         </el-card>
@@ -199,10 +199,10 @@
       <el-col :span="6">
         <el-card class="third-line">
           <span>当月好评数量排行</span>
-          <el-table :data="monthEvaluateTableData" stripe style="width: 100%">
-            <el-table-column prop="name" label="咨询师" width="180">
+          <el-table :data="scoreRankList" stripe style="width: 100%">
+            <el-table-column prop="counselorName" label="咨询师" width="180">
             </el-table-column>
-            <el-table-column prop="evaluateSum" label="好评数量" width="180">
+            <el-table-column prop="counselScore" label="平均评价" width="180">
             </el-table-column>
           </el-table>
         </el-card>
@@ -213,8 +213,8 @@
 
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
-import { GetCounselWeekAll, GetCounselTodayAll } from "@/api/consultation";
-import { GetCounselorToday, GetCounselorList } from "@/api/consultant";
+import { GetCounselWeekAll, GetCounselTodayAll, GetCounselTodaySum } from "@/api/consultation";
+import { GetCounselorToday, GetCounselorList, GetNumRank, GetScoreRank } from "@/api/consultant";
 import {
   GetSupervisorList,
 } from "@/api/supervisor";
@@ -256,6 +256,11 @@ export default {
       graphWeekNum:[],
       graphTodayNum:[],
       graphTodayTime:[],
+      numAll: 0,
+      timeAll: 0,
+      timeAllShow: "",
+      numRankList: [],
+      scoreRankList: [],
     };
   },
   mounted() {
@@ -266,6 +271,9 @@ export default {
     this.getCounselorList();
     this.getSupervisorList();
     this.getList();
+    this.getNumRank();
+    this.getScoreRank();
+    this.getCounselInfoAll();
   },
   methods: {
   initChart(){
@@ -334,7 +342,7 @@ export default {
         },
       ],
     };
-    myChart.setOption(option);
+    option && myChart.setOption(option);
 
     //建议加上以下这一行代码，不加的效果图如下（当浏览器窗口缩小的时候）。超过了div的界限（红色边框）
     window.addEventListener("resize", function () {
@@ -354,7 +362,9 @@ export default {
             }
          }
     let graphWeekDateArr = JSON.parse(JSON.stringify(this.graphWeekDate));
+    graphWeekDateArr = graphWeekDateArr.reverse()
     let graphWeekNumArr = JSON.parse(JSON.stringify(this.graphWeekNum));
+    graphWeekNumArr = graphWeekNumArr.reverse()
     let myChart2 = echarts.init(document.getElementById("graph_week"));
     let option2 = {
       color: ["#43CD80"],
@@ -386,7 +396,7 @@ export default {
         },
       ],
     };
-    myChart2.setOption(option2);
+    option2 && myChart2.setOption(option2);
     window.addEventListener("resize", function () {
     myChart2.resize();
     });
@@ -440,6 +450,66 @@ export default {
         }
       });
     },
+    getNumRank() {
+      GetNumRank().then((res) => {
+        if (res.data.code === "000") {
+          this.numRankList = res.data.datas
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    getScoreRank() {
+      GetScoreRank().then((res) => {
+        if (res.data.code === "000") {
+          this.scoreRankList = res.data.datas
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    getCounselInfoAll() {
+      GetCounselTodaySum().then((res) => {
+        if (res.data.code === "000") {
+          this.timeAll = res.data.datas[0].counselTime
+          this.timeAllShow = this.formatSeconds(this.timeAll)
+          this.numAll = res.data.datas[0].counselNum
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    formatSeconds(value) {
+				var secondTime = parseInt(value) // 秒
+				var minuteTime = 0 // 分
+				var hourTime = 0 // 小时
+				if (secondTime >= 60) {
+					minuteTime = parseInt(secondTime / 60)
+					secondTime = parseInt(secondTime % 60)
+					if (minuteTime >= 60) {
+						hourTime = parseInt(minuteTime / 60)
+						minuteTime = parseInt(minuteTime % 60)
+					}
+				}
+				var result ="" +(parseInt(secondTime) < 10? "0" + parseInt(secondTime): parseInt(secondTime))
+
+				// if (minuteTime > 0) {
+					result ="" + (parseInt(minuteTime) < 10? "0" + parseInt(minuteTime) : parseInt(minuteTime)) + ":" + result
+				// }
+				// if (hourTime > 0) {
+					result ="" + (parseInt(hourTime) < 10 ? "0" + parseInt(hourTime): parseInt(hourTime)) +":" + result
+				// }
+				return result
+			},
     editBtn() {
       this.saveShow = true;
     },

@@ -309,7 +309,7 @@
       >
       </el-table-column>
       <el-table-column
-        prop="comCount"
+        prop="evaluateScore"
         label="平均咨询等级"
         width="160"
         align="center"
@@ -594,9 +594,15 @@ var validateUsername = (rule, value, callback) => {
                 }
               }
             }
-            if(this.list[i].comCount != 0) {
-              this.list[i].comCount = this.list[i].evaluateScore/this.list[i].comCount
+            if(this.list[i].counselNum != 0) {
+              this.list[i].evaluateScore = this.list[i].evaluateScore/this.list[i].counselNum
+              this.list[i].evaluateScore = this.list[i].evaluateScore.toFixed(1)
             }
+            var counselTime = 0
+            for(var p=0;p<this.list[i].counselInfos.length;p++) {
+              counselTime += this.list[i].counselInfos[p].duration
+            }
+            this.list[i].counselTime = this.formatSeconds(counselTime)
           }
         } else {
           this.$message({

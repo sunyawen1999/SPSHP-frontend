@@ -11,20 +11,23 @@
       <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
         <el-form ref="detailFormRef" :model="detailForm" label-width="120px">
           <el-col :span="16">
-            <el-form-item label="咨询师ID" prop="counselorId">
-              <el-input v-model="detailForm.counselorId" disabled></el-input>
+            <el-form-item label="咨询师" prop="counselorId">
+              <el-input v-model="detailForm.counselorName" disabled></el-input>
             </el-form-item>
-            <el-form-item label="访客ID" prop="customerId">
-              <el-input v-model="detailForm.customerId" disabled></el-input>
+            <el-form-item label="访客" prop="customerId">
+              <el-input v-model="detailForm.customerName" disabled></el-input>
             </el-form-item>
             <el-form-item label="咨询时长" prop="duration">
               <el-input v-model="detailForm.duration" disabled></el-input>
             </el-form-item>
-            <el-form-item label="咨询开始时间" prop="startTime">
+            <el-form-item label="咨询日期" prop="startTime">
               <el-input v-model="detailForm.startTime" disabled></el-input>
             </el-form-item>
-            <el-form-item label="咨询结束时间" prop="endTime">
-              <el-input v-model="detailForm.endTime" disabled></el-input>
+            <el-form-item label="访客评价" prop="startTime">
+              <el-input type="textarea" v-model="detailForm.evaluateInfoToCouns" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="咨询师评价" prop="startTime">
+              <el-input type="textarea" v-model="detailForm.evaluateInfoToCustom" disabled></el-input>
             </el-form-item>
           </el-col>
         </el-form>
@@ -121,7 +124,7 @@
           <el-button type="text" @click="seeDetail(scope.row)"
             >查看详情</el-button
           >
-          <el-button type="text" @click="exportRecorder(scope.row.id)"
+          <el-button type="text" @click="exportRecorder(scope.row.historyMessage)"
             >导出记录</el-button
           >
           <!-- <el-popconfirm
@@ -161,7 +164,11 @@ import {
   DeleteCounsel,
   GetCounselById,
   GetCounselList,
-} from "@/api/consultation";
+  GetCounselByCounselor
+} from "@/api/consultation";GetCounselorList
+import {
+  GetCounselorList
+} from "@/api/consultant";
 import {
   GetCustomerList,
 } from "@/api/visitor";
@@ -186,31 +193,38 @@ export default {
       listLoading: false,
       list: [],
       detailForm: {
-        counselorId: 0,
-        customerId: 0,
+        counselorName: 0,
+        customerName: "",
         duration: 0,
         endTime: "",
         evaluateId: 0,
-        evaluateInfo: "",
+        evaluateInfoToCouns: "",
+        evaluateInfoToCustom: "",
         historyMessage: "",
         startTime: "",
       },
       activeTab: "",
       user: {},
       customerList: [],
+      counselorList: [],
+      messageTypeTrans: {
+        "TIMTextElem": "文本消息",
+        "TIMImageElem": "图片消息",
+        "TIMCustomElem": "系统消息"
+      }
     };
   },
   mounted() {
     this.user = JSON.parse(sessionStorage.getItem("user"));
-    let tim = TIM.create(this.options);
+    /* let tim = TIM.create(this.options);
     tim.setLogLevel(0);
     tim.registerPlugin({ "tim-upload-plugin": TIMUploadPlugin });
     console.log(this.genTestUserSig("admin").userSig)
-    let promise = tim.login({ userID: this.user.loginName, userSig: this.genTestUserSig(this.user.loginName).userSig});
+    let promise = tim.login({ userID: "15186925541", userSig: this.genTestUserSig("15186925541").userSig});
     promise
       .then(function (imResponse) {
         console.log(imResponse.data); // 登录成功
-        let promiseCon = tim.getMessageList({conversationID: 'C2Cuser0', count: 15});
+        let promiseCon = tim.getMessageList({conversationID: 'GROUP@TGS#2ROBHUFIP', count: 15});
         promiseCon.then(function(imResponse) {
           console.log(imResponse)
           const messageList = imResponse.data.messageList; // 消息列表。
@@ -224,9 +238,14 @@ export default {
       })
       .catch(function (imError) {
         console.warn("login error:", imError); // 登录失败的相关信息
-      });
+      }); */
       this.getCustomerList();
-      this.getList();
+      if(this.user.roleType === "admin") {
+        this.getList();
+      } else  if(this.user.roleType === "counselor") {
+        this.getListCounselor(this.user.counselorId);
+      }
+      this.getCounselorList()
   },
   methods: {
     login() {
@@ -329,11 +348,54 @@ export default {
         }
       });
     },
+    getListCounselor(id) {
+      const that = this;
+      const para = {
+        //...this.listQuery,
+        id: id,
+        page: this.listQuery.page - 1,
+        size: this.listQuery.size
+      };
+      GetCounselByCounselor(para).then((res) => {
+        //console.log(res);
+        if (res.data.code === "000") {
+          this.list = res.data.datas[0].content;
+          console.log(this.customerList)
+          for(var i=0;i<this.list.length;i++) {
+            for(var j=0;j<this.customerList.length;j++) {
+              if(this.list[i].customerId === this.customerList[j].id){
+                this.list[i].customerId = this.customerList[j].customerName
+              }
+            }
+            this.list[i].duration = this.formatSeconds(this.list[i].duration)
+            this.list[i].startTime = this.list[i].startTime.substr(0,10) + " " + this.list[i].startTime.substr(11,8)
+          }
+          this.total = res.data.datas[0].totalElements;
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
     getCustomerList() {
       const that = this;
       GetCustomerList().then((res) => {
         if (res.data.code === "000") {
           this.customerList = res.data.datas[0].content;
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    getCounselorList() {
+      GetCounselorList().then((res) => {
+        if (res.data.code === "000") {
+          this.counselorList = res.data.datas[0].content;
         } else {
           this.$message({
             message: res.data.msg,
@@ -396,19 +458,124 @@ export default {
       GetCounselById(row.id).then((res) => {
         console.log(res);
         if (res.data.code === "000") {
-          this.detailForm.counselorId = res.data.datas[0].counselorId;
-          this.detailForm.customerId = res.data.datas[0].customerId;
-          this.detailForm.duration = res.data.datas[0].duration;
-          this.detailForm.startTime = res.data.datas[0].startTime;
-          this.detailForm.endTime = res.data.datas[0].endTime;
+          for(var j=0;j<this.counselorList.length;j++) {
+              if(res.data.datas[0].counselorId === this.counselorList[j].id){
+                this.detailForm.counselorName = this.counselorList[j].counselorName
+              }
+            }
+          for(var j=0;j<this.customerList.length;j++) {
+              if(res.data.datas[0].customerId === this.customerList[j].id){
+                this.detailForm.customerName = this.customerList[j].customerName
+              }
+            }
+          this.detailForm.duration = this.formatSeconds(res.data.datas[0].duration);
+          this.detailForm.startTime = res.data.datas[0].startTime.substr(0,10) + " " + res.data.datas[0].startTime.substr(11,8);
+          this.detailForm.evaluateInfoToCouns = res.data.datas[0].evaluateInfo.infoToCounselor;
+          this.detailForm.evaluateInfoToCustom = res.data.datas[0].evaluateInfo.starToCustomer;
         }
       });
     },
-    exportRecorder(id) {},
+    exportRecorder(group) {
+      var sig = this.genTestUserSig("admin").userSig
+      axios({
+        method: "post",
+        url: `https://console.tim.qq.com/v4/group_open_http_svc/group_msg_get_simple?sdkappid=1400638027&identifier=admin&usersig=${sig}&random=99999999&contenttype=json`,
+        data: {
+            GroupId: group,
+            ReqMsgNumber: 10
+        },
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    }).then((res) => {
+      console.log(res)
+      var messageListOut = []
+      for(var i=0;i<res.data.RspMsgList.length;i++) {
+        var content = ""
+        if(res.data.RspMsgList[i].MsgBody[0].MsgType === "TIMTextElem") {
+          content = res.data.RspMsgList[i].MsgBody[0].MsgContent.Text
+        } else if(res.data.RspMsgList[i].MsgBody[0].MsgType === "TIMImageElem") {
+          content = res.data.RspMsgList[i].MsgBody[0].MsgContent.ImageInfoArray[0].URL
+        } else if(res.data.RspMsgList[i].MsgBody[0].MsgType === "TIMCustomElem") {
+          content = "系统消息"
+        }
+        if(res.data.RspMsgList[i].MsgBody[0].MsgType !== "TIMCustomElem") {
+          messageListOut.push({
+            person: res.data.RspMsgList[i].From_Account,
+            type: this.messageTypeTrans[res.data.RspMsgList[i].MsgBody[0].MsgType],
+            content: content,
+            time: this.timestampToTime(res.data.RspMsgList[i].MsgTimeStamp)
+          })
+        }
+      }
+      console.log(messageListOut)
+      this.downloadMessage(group,messageListOut)
+    });
+    },
+    downloadMessage(group,data) {
+      console.log(data)
+      var title = group
+      var str=''
+      data.forEach(item=>{
+        str+='发送人:'+item.person+'   '+'发送时间:'+item.time+'   '+'消息类型:'+item.type+'   '+'内容:'+item.content+'\r\n'
+      })
+      var allStr = title+'\r\n'+'\r\n'+str
+      var export_blob = new Blob([allStr]);
+      var save_link = document.createElement("a");
+      save_link.href = window.URL.createObjectURL(export_blob);
+      save_link.download = '消息导出'+'.txt';
+      this.fakeClick(save_link);
+    },
+    fakeClick(obj) {
+      var ev = document.createEvent("MouseEvents");
+      ev.initMouseEvent(
+        "click",
+        true,
+        false,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null
+      );
+      obj.dispatchEvent(ev);
+    },
+    timestampToTime(timestamp) {
+        var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        var D = date.getDate() + ' ';
+        var h = date.getHours() + ':';
+        var m = date.getMinutes() + ':';
+        var s = date.getSeconds();
+        return Y+M+D+h+m+s;
+    },
     beforeLeave() {},
   },
 };
 </script>
+
+<style>
+.el-input.is-disabled .el-input__inner {
+    background-color: #F5F7FA;
+    border-color: #E4E7ED;
+    color: #000000;
+    cursor: text;
+}
+.el-textarea.is-disabled .el-textarea__inner {
+    background-color: #F5F7FA;
+    border-color: #E4E7ED;
+    color: #000000;
+    cursor: text;
+}
+</style>
 
 <style scoped>
 .el-row {

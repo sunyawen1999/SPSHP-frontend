@@ -15,3 +15,7 @@ export const GetCounselorList = (para) => {
 export const combineRequest = (para) => axios.put('/api/counselor/combine', para);
 
 export const GetCounselorToday = () => axios.get('/api/counselor/today');
+
+export const GetNumRank = () => axios.get('/api/counselor/numRank');
+
+export const GetScoreRank = () => axios.get('/api/counselor/scoreRank');

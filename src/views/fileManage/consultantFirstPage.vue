@@ -114,18 +114,39 @@
     <el-row :gutter="24">
       <el-card class="table-card">
         <el-table :data="counselInfoList" stripe style="width: 100%">
-          <el-table-column prop="name" label="咨询人" width="180">
+          <el-table-column prop="customerId" label="咨询人" width="180">
           </el-table-column>
           <el-table-column prop="duration" label="咨询时长" width="180">
           </el-table-column>
-          <el-table-column prop="date" label="咨询日期"> </el-table-column>
-          <el-table-column prop="grade" label="咨询评级"> </el-table-column>
-          <el-table-column prop="evaluate" label="咨询评价"> </el-table-column>
+          <el-table-column prop="startTime" label="咨询日期"> </el-table-column>
+          <el-table-column
+            prop="evaluateInfo.starToCounselor"
+            label="咨询评级"
+            width="160"
+            align="center"
+          >
+          <template slot-scope="scope">
+            <el-rate
+              v-model="scope.row.evaluateInfo.starToCounselor"
+              disabled
+              text-color="#ff9900"
+              score-template="{value}">
+          </el-rate>
+          </template>
+          </el-table-column>
+          <el-table-column
+            prop="evaluateInfo.infoToCounselor"
+            label="咨询评价"
+            width="160"
+            align="center"
+            :formatter="numberFormat"
+          >
+          </el-table-column>
           <el-table-column label="操作">
-            <!-- <template slot-scope="scope"> -->
-            <el-button type="text" @click="1">查看详情</el-button>
-            <el-button type="text" @click="1">导出记录</el-button>
-            <!-- </template> -->
+            <template slot-scope="scope">
+            <el-button type="text" @click="seeDetail(scope.row)">查看详情</el-button>
+            <el-button type="text" @click="exportRecorder(scope.row.historyMessage)">导出记录</el-button>
+            </template>
           </el-table-column>
         </el-table>
       </el-card>
@@ -140,6 +161,9 @@ import { GetCounselorById } from "@/api/consultant";
 import { GetConselorScheduleById } from "@/api/schedule";
 import { GetCounselByCounselor } from "@/api/consultation";
 import { GetCustomerList } from "@/api/visitor";
+import axios from "axios";
+import TIM from "tim-js-sdk";
+import TIMUploadPlugin from "tim-upload-plugin";
 
 export default {
   data() {
@@ -169,6 +193,11 @@ export default {
       selectTime: new Date(),
       counselInfoList: [],
       customerList: [],
+      messageTypeTrans: {
+        "TIMTextElem": "文本消息",
+        "TIMImageElem": "图片消息",
+        "TIMCustomElem": "系统消息"
+      }
     };
   },
   mounted() {
@@ -226,26 +255,21 @@ export default {
       });
     },
     getCounselInfo() {
-      GetCounselByCounselor(this.user.counselorId).then((res) => {
+      const para = {
+        id: this.user.counselorId
+      }
+      GetCounselByCounselor(para).then((res) => {
         if (res.data.code === "000") {
           this.counselInfoList = res.data.datas[0].content;
-          for (var i = 0; i < this.counselInfoList.length; i++) {
-            for (var j = 0; j < this.customerList.length; j++) {
-              if (
-                this.counselInfoList[i].customerId === this.customerList[j].id
-              ) {
-                this.counselInfoList[i].customerId = this.customerList[
-                  j
-                ].customerName;
+          console.log(this.customerList)
+          for(var i=0;i<this.counselInfoList.length;i++) {
+            for(var j=0;j<this.customerList.length;j++) {
+              if(this.counselInfoList[i].customerId === this.customerList[j].id){
+                this.counselInfoList[i].customerId = this.customerList[j].customerName
               }
             }
-            this.counselInfoList[i].duration = this.formatSeconds(
-              this.counselInfoList[i].duration
-            );
-            this.counselInfoList[i].startTime =
-              this.counselInfoList[i].startTime.substr(0, 10) +
-              " " +
-              this.counselInfoList[i].startTime.substr(11, 8);
+            this.counselInfoList[i].duration = this.formatSeconds(this.counselInfoList[i].duration)
+            this.counselInfoList[i].startTime = this.counselInfoList[i].startTime.substr(0,10) + " " + this.counselInfoList[i].startTime.substr(11,8)
           }
           //this.total = res.data.datas[0].totalElements;
         } else {
@@ -256,6 +280,177 @@ export default {
         }
       });
     },
+    numberFormat(row, column, cellValue) {
+      // console.log(row , column , cellValue)
+      if (!cellValue) return "";
+      if (cellValue.length > 10) {
+        //最长固定显示4个字符
+        return cellValue.slice(0, 10) + "...";
+      }
+      return cellValue;
+    },
+    formatSeconds(value) {
+				var secondTime = parseInt(value) // 秒
+				var minuteTime = 0 // 分
+				var hourTime = 0 // 小时
+				if (secondTime >= 60) {
+					minuteTime = parseInt(secondTime / 60)
+					secondTime = parseInt(secondTime % 60)
+					if (minuteTime >= 60) {
+						hourTime = parseInt(minuteTime / 60)
+						minuteTime = parseInt(minuteTime % 60)
+					}
+				}
+				var result ="" +(parseInt(secondTime) < 10? "0" + parseInt(secondTime): parseInt(secondTime))
+
+				// if (minuteTime > 0) {
+					result ="" + (parseInt(minuteTime) < 10? "0" + parseInt(minuteTime) : parseInt(minuteTime)) + ":" + result
+				// }
+				// if (hourTime > 0) {
+					result ="" + (parseInt(hourTime) < 10 ? "0" + parseInt(hourTime): parseInt(hourTime)) +":" + result
+				// }
+				return result
+			},
+      seeDetail(row) {
+      this.dialogDetailVisible = true;
+      GetCounselById(row.id).then((res) => {
+        console.log(res);
+        if (res.data.code === "000") {
+          for(var j=0;j<this.counselorList.length;j++) {
+              if(res.data.datas[0].counselorId === this.counselorList[j].id){
+                this.detailForm.counselorName = this.counselorList[j].counselorName
+              }
+            }
+          for(var j=0;j<this.customerList.length;j++) {
+              if(res.data.datas[0].customerId === this.customerList[j].id){
+                this.detailForm.customerName = this.customerList[j].customerName
+              }
+            }
+          this.detailForm.duration = this.formatSeconds(res.data.datas[0].duration);
+          this.detailForm.startTime = res.data.datas[0].startTime.substr(0,10) + " " + res.data.datas[0].startTime.substr(11,8);
+          this.detailForm.evaluateInfoToCouns = res.data.datas[0].evaluateInfo.infoToCounselor;
+          this.detailForm.evaluateInfoToCustom = res.data.datas[0].evaluateInfo.starToCustomer;
+        }
+      });
+    },
+    exportRecorder(group) {
+      var sig = this.genTestUserSig("admin").userSig
+      axios({
+        method: "post",
+        url: `https://console.tim.qq.com/v4/group_open_http_svc/group_msg_get_simple?sdkappid=1400638027&identifier=admin&usersig=${sig}&random=99999999&contenttype=json`,
+        data: {
+            GroupId: group,
+            ReqMsgNumber: 10
+        },
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    }).then((res) => {
+      console.log(res)
+      var messageListOut = []
+      for(var i=0;i<res.data.RspMsgList.length;i++) {
+        var content = ""
+        if(res.data.RspMsgList[i].MsgBody[0].MsgType === "TIMTextElem") {
+          content = res.data.RspMsgList[i].MsgBody[0].MsgContent.Text
+        } else if(res.data.RspMsgList[i].MsgBody[0].MsgType === "TIMImageElem") {
+          content = res.data.RspMsgList[i].MsgBody[0].MsgContent.ImageInfoArray[0].URL
+        } else if(res.data.RspMsgList[i].MsgBody[0].MsgType === "TIMCustomElem") {
+          content = "系统消息"
+        }
+        if(res.data.RspMsgList[i].MsgBody[0].MsgType !== "TIMCustomElem") {
+          messageListOut.push({
+            person: res.data.RspMsgList[i].From_Account,
+            type: this.messageTypeTrans[res.data.RspMsgList[i].MsgBody[0].MsgType],
+            content: content,
+            time: this.timestampToTime(res.data.RspMsgList[i].MsgTimeStamp)
+          })
+        }
+      }
+      console.log(messageListOut)
+      this.downloadMessage(group,messageListOut)
+    });
+    },
+    downloadMessage(group,data) {
+      console.log(data)
+      var title = group
+      var str=''
+      data.forEach(item=>{
+        str+='发送人:'+item.person+'   '+'发送时间:'+item.time+'   '+'消息类型:'+item.type+'   '+'内容:'+item.content+'\r\n'
+      })
+      var allStr = title+'\r\n'+'\r\n'+str
+      var export_blob = new Blob([allStr]);
+      var save_link = document.createElement("a");
+      save_link.href = window.URL.createObjectURL(export_blob);
+      save_link.download = '消息导出'+'.txt';
+      this.fakeClick(save_link);
+    },
+    fakeClick(obj) {
+      var ev = document.createEvent("MouseEvents");
+      ev.initMouseEvent(
+        "click",
+        true,
+        false,
+        window,
+        0,
+        0,
+        0,
+        0,
+        0,
+        false,
+        false,
+        false,
+        false,
+        0,
+        null
+      );
+      obj.dispatchEvent(ev);
+    },
+    timestampToTime(timestamp) {
+        var date = new Date(timestamp * 1000);//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+        var Y = date.getFullYear() + '-';
+        var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+        var D = date.getDate() + ' ';
+        var h = date.getHours() + ':';
+        var m = date.getMinutes() + ':';
+        var s = date.getSeconds();
+        return Y+M+D+h+m+s;
+    },
+    genTestUserSig(userID) {
+  /**
+   * 腾讯云 SDKAppId，需要替换为您自己账号下的 SDKAppId。
+   *
+   * 进入腾讯云实时音视频[控制台](https://console.cloud.tencent.com/rav ) 创建应用，即可看到 SDKAppId，
+   * 它是腾讯云用于区分客户的唯一标识。
+   */
+  var SDKAPPID = 1400638027;
+
+  /**
+   * 签名过期时间，建议不要设置的过短
+   * <p>
+   * 时间单位：秒
+   * 默认时间：7 x 24 x 60 x 60 = 604800 = 7 天
+   */
+  var EXPIRETIME = 604800;
+
+  /**
+   * 计算签名用的加密密钥，获取步骤如下：
+   *
+   * step1. 进入腾讯云实时音视频[控制台](https://console.cloud.tencent.com/rav )，如果还没有应用就创建一个，
+   * step2. 单击“应用配置”进入基础配置页面，并进一步找到“帐号体系集成”部分。
+   * step3. 点击“查看密钥”按钮，就可以看到计算 UserSig 使用的加密的密钥了，请将其拷贝并复制到如下的变量中
+   *
+   * 注意：该方案仅适用于调试Demo，正式上线前请将 UserSig 计算代码和密钥迁移到您的后台服务器上，以避免加密密钥泄露导致的流量盗用。
+   * 文档：https://cloud.tencent.com/document/product/647/17275#Server
+   */
+  var SECRETKEY = 'eeba4e888bcf8971927a2931c93326fc7fd116957ac2db131835bac3c40319c7';
+
+  var generator = new window.LibGenerateTestUserSig(SDKAPPID, SECRETKEY, EXPIRETIME);
+  var userSig = generator.genTestUserSig(userID);
+  return {
+    SDKAppID: SDKAPPID,
+    userSig: userSig
+  };
+},
     editBtn() {
       this.saveShow = true;
     },

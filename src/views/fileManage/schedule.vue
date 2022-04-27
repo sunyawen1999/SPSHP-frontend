@@ -80,7 +80,7 @@
           </el-table-column>
         </el-table>
         <el-table :data="supervisorShowList" style="width: 100%" v-show="this.counselorShow == false">
-          <el-table-column prop="name" width="80" label="name">
+          <el-table-column prop="name" width="100" label="name">
           </el-table-column>
           <el-table-column label="操作" align="center" min-width="80">
             <template slot-scope="scope">
