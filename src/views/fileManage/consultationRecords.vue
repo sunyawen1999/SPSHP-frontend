@@ -471,7 +471,7 @@ export default {
           this.detailForm.duration = this.formatSeconds(res.data.datas[0].duration);
           this.detailForm.startTime = res.data.datas[0].startTime.substr(0,10) + " " + res.data.datas[0].startTime.substr(11,8);
           this.detailForm.evaluateInfoToCouns = res.data.datas[0].evaluateInfo.infoToCounselor;
-          this.detailForm.evaluateInfoToCustom = res.data.datas[0].evaluateInfo.starToCustomer;
+          this.detailForm.evaluateInfoToCustom = res.data.datas[0].evaluateInfo.infoToCustomer;
         }
       });
     },

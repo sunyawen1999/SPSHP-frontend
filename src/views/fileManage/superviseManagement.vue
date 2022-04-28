@@ -307,7 +307,7 @@
       >
       </el-table-column>
       <el-table-column
-        prop="schedule"
+        prop="weekSchedule"
         label="周值班安排"
         width="160"
         align="center"
