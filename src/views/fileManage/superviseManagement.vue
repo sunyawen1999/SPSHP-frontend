@@ -1,6 +1,44 @@
 <template>
   <section>
     <div>
+        <el-dialog
+        title="修改督导排班"
+        :visible.sync="dialogEditScheduleVisible"
+        width="50%"
+        :destroy-on-close="false"
+        @closed="$reset('editScheduleForm')"
+      >
+        <el-tabs v-model="activeTab" type="card" :before-leave="beforeLeave">
+            <el-form
+              ref="editScheduleFormRef"
+              :model="editScheduleForm"
+              :rules="editScheduleRules"
+              label-width="120px"
+            >
+                <el-col :span="16">
+                  <el-form-item label="姓名" prop="name">
+                    <el-input
+                      v-model="editScheduleForm.name"
+                      disabled
+                    ></el-input>
+                  </el-form-item>
+                </el-col>
+                  <el-col :span="20">
+                  <el-form-item label="周值班安排" prop="weekSchedule">
+                  <el-checkbox-group v-model="editScheduleForm.weekSchedule"
+                  @change="handleCheckedWeeksChange">
+                  <el-checkbox-button v-for="week in weeks" :label="week.id" border
+                  :key="week.id">{{week.label}}</el-checkbox-button>
+                  </el-checkbox-group>
+                  </el-form-item>
+                </el-col>
+            </el-form>
+        </el-tabs>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogEditScheduleVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogEditScheduleSure">确 定</el-button>
+        </span>
+      </el-dialog>
       <el-dialog
         title="修改督导"
         :visible.sync="dialogUpdateVisible"
@@ -293,7 +331,7 @@
       >
       </el-table-column>
       <el-table-column
-        prop="totalSuperviseNumber"
+        prop="totalCounselNum"
         label="总督导次数"
         width="160"
         align="center"
@@ -317,6 +355,9 @@
         <template slot-scope="scope">
           <el-button type="text" @click="editDetail(scope.row)"
             >修改</el-button
+          >
+          <el-button type="text" @click="editSchedule(scope.row)"
+            >更新排班</el-button
           >
           <el-button type="text" @click="deleteClick(scope.row.id)"
             >删除</el-button
@@ -352,6 +393,15 @@
 </template>
 
 <script>
+const weekOptions =[
+  {id:"MON",label:'周一'},
+  {id:"TUE",label:'周二'},
+  {id:"WED",label:'周三'},
+  {id:"THU",label:'周四'},
+  {id:"FRI",label:'周五'},
+  {id:"SAT",label:'周六'},
+  {id:"SUN",label:'周日'},
+];
 import {
   AddSupervisor,
   UpdateSupervisor,
@@ -360,6 +410,7 @@ import {
   GetSupervisorList,
 } from "@/api/supervisor";
 import { AddUser, UpdateUser, GetUserById } from "@/api/users";
+import {GetSupervisorScheduleById,UpdateDefaultSchedule }from"@/api/schedule";
 import axios from "axios";
 
 export default {
@@ -449,6 +500,8 @@ var validateUsername = (rule, value, callback) => {
     return {
       activeTab: "personInfo",
       dialogVisible: false,
+      weeks:weekOptions,
+      dialogEditScheduleVisible:false,
       dialogUpdateVisible:false,
       listQuery: {
         page: 1,
@@ -458,7 +511,15 @@ var validateUsername = (rule, value, callback) => {
       total: 0,
       listLoading: false,
       list: [],
+      scheduleList:[],
       updateId:"",
+      editScheduleForm:{
+        name:"",
+        id:"",
+        supervisor:[],
+        weekSchedule:[],
+        weekScheduleString:[],
+      },
       updateForm: {
         name: "",
         gender: "",
@@ -534,7 +595,10 @@ var validateUsername = (rule, value, callback) => {
         accountName:[{ required: true, message: "请输入用户名", trigger: ["blur"] }],
         credit:[{ required: true, message: "请输入督导资质", trigger: ["blur"] }],
         creditNumber:[{ required: true, message: "请输入资质编号", trigger: ["blur"] }],
-      },
+     },
+     editScheduleRules: {
+        name: [{ required: true, message: "请输入姓名", trigger: ["blur"] }],
+     }
     };
   },
   mounted() {
@@ -549,9 +613,24 @@ var validateUsername = (rule, value, callback) => {
         size: this.listQuery.size
       };
       GetSupervisorList(para).then((res) => {
+        console.log(res.data.datas[0]);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
           this.total = res.data.datas[0].totalElements;
+          for(let i =0;i<res.data.datas[0].content.length;i++){
+          this.list[i].totalSuperviseTime = this.formatSeconds(res.data.datas[0].content[i].totalCounselTime);
+          GetSupervisorScheduleById(this.list[i].id).then((res)=>{
+             if (res.data.code === "000") {
+               this.scheduleList = res.data.datas;
+               console.log(this.scheduleList);
+             this.list[i].schedule= this.scheduleList[0];
+             }else {
+              this.$message({
+              message: res.data.msg,
+              type: "error",
+             });
+             }
+          })}
         } else {
           this.$message({
             message: res.data.msg,
@@ -595,6 +674,45 @@ var validateUsername = (rule, value, callback) => {
             }
       })
     },
+      editSchedule(row) {
+      GetSupervisorById(row.id).then((res)=>{
+        console.log(res);
+        if (res.data.code === "000"){
+          this.editScheduleForm.name = res.data.datas[0].supervisorName;
+          this.editScheduleForm.id =   res.data.datas[0].id;
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+      });
+      this.dialogEditScheduleVisible = true;
+    },
+    dialogEditScheduleSure(){
+      const schedule = {
+        id:this.editScheduleForm.id,
+        isCounselor: false,
+        weekDaysList:this.editScheduleForm.weekScheduleString,
+      };
+      console.log(schedule);
+      UpdateDefaultSchedule(schedule).then((res)=>{
+      if (res.data.code === "000") {
+            console.log(res.data);
+            this.getList();
+            this.$message({
+              message: "修改排班成功",
+              type: "success",
+            });
+        }else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+          });
+        }
+      });
+      this.dialogEditScheduleVisible = false;
+    },
     editDetail(row) {
       console.log(row);
       this.dialogUpdateVisible = true;
@@ -625,6 +743,31 @@ var validateUsername = (rule, value, callback) => {
             }
       });
     },
+    handleCheckedWeeksChange(value){
+      this.editScheduleForm.weekScheduleString = value;
+    },
+    formatSeconds(value) {
+				var secondTime = parseInt(value) // 秒
+				var minuteTime = 0 // 分
+				var hourTime = 0 // 小时
+				if (secondTime >= 60) {
+					minuteTime = parseInt(secondTime / 60)
+					secondTime = parseInt(secondTime % 60)
+					if (minuteTime >= 60) {
+						hourTime = parseInt(minuteTime / 60)
+						minuteTime = parseInt(minuteTime % 60)
+					}
+				}
+				var result ="" +(parseInt(secondTime) < 10? "0" + parseInt(secondTime): parseInt(secondTime))
+
+				// if (minuteTime > 0) {
+					result ="" + (parseInt(minuteTime) < 10? "0" + parseInt(minuteTime) : parseInt(minuteTime)) + ":" + result
+				// }
+				// if (hourTime > 0) {
+					result ="" + (parseInt(hourTime) < 10 ? "0" + parseInt(hourTime): parseInt(hourTime)) +":" + result
+				// }
+				return result
+		},
     dialogUpdateSure(id) {
       this.$refs["updateForm"].validate((valid) => {
         if (valid) {
