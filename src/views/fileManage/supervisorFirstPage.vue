@@ -47,13 +47,13 @@
                   <td>
                     <span
                       style="margin-left: 40px; font-size: 50px; color: black"
-                      >{{user.supervisorInfo.counselToday}}</span
+                      >{{counselToday}}</span
                     >
                   </td>
                   <td>
                     <span
                       style="margin-left: 90px; font-size: 50px; color: black"
-                      >{{user.supervisorInfo.counselTime}}</span
+                      >{{counselTime}}</span
                     >
                   </td>
                 </tr>
@@ -71,6 +71,7 @@
                 :data="counselorTableData"
                 style="width: 100%;margin-top: 8px"
                 :show-header="false"
+                height="190px"
               >
                 <el-table-column
                   prop="counselorName"
@@ -97,7 +98,7 @@
               <div style="margin-top: 20px">
                 <span style="font-size: 10px; color: white">正在咨询</span>
               </div>
-              <span style="font-size: 50px; color: white">12345</span>
+              <span style="font-size: 50px; color: white">{{busyCounselor}}</span>
             </el-card>
           </el-col>
         </el-row>
@@ -122,15 +123,15 @@
     <el-row :gutter="24">
       <div style="margin-left: 15px">
         <span style="font-size: 15px">最近完成的求助对话</span>
-        <el-button type="text" @click="1">查看全部>></el-button>
+        <el-button type="text" @click="seeAll">查看全部>></el-button>
       </div>
       <el-card class="table-card">
-        <el-table :data="helpTableData" stripe style="width: 100%">
-          <el-table-column prop="name" label="咨询师" width="180">
+        <el-table :data="counselInfoList" stripe style="width: 100%">
+          <el-table-column prop="counselorId" label="咨询师" width="180">
           </el-table-column>
           <el-table-column prop="duration" label="咨询时长" width="180">
           </el-table-column>
-          <el-table-column prop="date" label="咨询日期"> </el-table-column>
+          <el-table-column prop="startTime" label="咨询日期"> </el-table-column>
           <el-table-column label="操作">
             <!-- <template slot-scope="scope"> -->
             <el-button type="text" @click="1">查看详情</el-button>
@@ -146,7 +147,10 @@
 <script>
 //import { GetTableLogs } from "@/api/graphAndTable";
 import login from "@/assets/person.png";
-import { GetCounselorToday } from "@/api/consultant";
+import { GetCounselorToday,GetCounselorBusy, GetCounselorList } from "@/api/consultant";
+import {
+  GetCounselBySupervisor
+} from "@/api/consultation";
 import { GetSupervisorScheduleById } from "@/api/schedule";
 
 export default {
@@ -172,13 +176,24 @@ export default {
       selectTime: new Date(),
       scheduleList: [],
       user:{},
+      busyCounselor: 0,
+      counselInfoList: [],
+      counselorList: [],
+      counselTime: 0,
     };
   },
   mounted() {
     this.user = JSON.parse(sessionStorage.getItem("user"));
+    this.counselTime = this.formatSeconds(this.user.supervisorInfo.counselTime)
+    this.counselToday = this.user.supervisorInfo.counselToday
     this.getSupervisorSchedule();
     this.getCounselorToday();
+    this.getBusyCounselor()
+    this.getListSupervisor(this.user.supervisorId)
   },
+  created() {
+     this.asyncCounselorData();
+ },
   methods: {
       getSupervisorSchedule(){
         this.user = JSON.parse(sessionStorage.getItem("user"));
@@ -208,6 +223,86 @@ export default {
           });
         }
       });
+    },
+    getBusyCounselor() {
+      GetCounselorBusy().then((res) => {
+        if(res.data.code === "000") {
+          this.busyCounselor = res.data.datas.length
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+            offset: 200,
+          });
+        }
+      })
+    },
+    getListSupervisor(id) {
+      const para = {
+        //...this.listQuery,
+        id: id,
+        page: 0,
+        size: 5
+      };
+      GetCounselBySupervisor(para).then((res) => {
+        //console.log(res);
+        if (res.data.code === "000") {
+          this.counselInfoList = res.data.datas[0].content;
+          for(var i=0;i<this.counselInfoList.length;i++) {
+            for(var j=0;j<this.counselorList.length;j++) {
+              if(this.counselInfoList[i].counselorId === this.counselorList[j].id){
+                this.counselInfoList[i].counselorId = this.counselorList[j].counselorName
+              }
+            }
+            this.counselInfoList[i].duration = this.formatSeconds(this.counselInfoList[i].duration)
+            this.counselInfoList[i].startTime = this.counselInfoList[i].startTime.substr(0,10) + " " + this.counselInfoList[i].startTime.substr(11,8)
+          }
+          this.total = res.data.datas[0].totalElements;
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      });
+    },
+    asyncCounselorData() {
+      GetCounselorList().then((res) => {
+        if (res.data.code === "000") {
+          this.counselorList = res.data.datas[0].content;
+          console.log(this.counselorList)
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      })
+    },
+    formatSeconds(value) {
+				var secondTime = parseInt(value) // 秒
+				var minuteTime = 0 // 分
+				var hourTime = 0 // 小时
+				if (secondTime >= 60) {
+					minuteTime = parseInt(secondTime / 60)
+					secondTime = parseInt(secondTime % 60)
+					if (minuteTime >= 60) {
+						hourTime = parseInt(minuteTime / 60)
+						minuteTime = parseInt(minuteTime % 60)
+					}
+				}
+				var result ="" +(parseInt(secondTime) < 10? "0" + parseInt(secondTime): parseInt(secondTime))
+
+				// if (minuteTime > 0) {
+					result ="" + (parseInt(minuteTime) < 10? "0" + parseInt(minuteTime) : parseInt(minuteTime)) + ":" + result
+				// }
+				// if (hourTime > 0) {
+					result ="" + (parseInt(hourTime) < 10 ? "0" + parseInt(hourTime): parseInt(hourTime)) +":" + result
+				// }
+				return result
+		},
+    seeAll() {
+      this.$router.push("/consultationRecords");
     },
     editBtn() {
       this.saveShow = true;

@@ -15,6 +15,7 @@ import {
   GetCustomerList,
 } from "@/api/visitor";
 import { AddUser, UpdateUser } from "@/api/users";
+import { GetSupervisorById } from "@/api/supervisor";
 import axios from "axios";
 
 export default {
@@ -30,13 +31,24 @@ export default {
       listLoading: false,
       list: [],
       TimSrc: "",
-      user: {}
+      user: {},
+      supervisorName: ""
     };
   },
   mounted() {
     //this.getList();
     this.user = JSON.parse(sessionStorage.getItem("user"));
-    this.TimSrc = `http://47.101.185.1:5210/?userID=${this.user.loginName}&password=123456`
+    if(this.user.roleType === "counselor") {
+      var supervisorId = this.user.counselorInfo.supervisorIds[0]
+      GetSupervisorById(supervisorId).then((res) => {
+        if(res.data.code === "000") {
+          this.supervisorName = res.data.datas[0].supervisorName
+          this.TimSrc = `http://47.101.185.1:5210/?userID=${this.user.loginName}&password=123456&supervisorId=${supervisorId}&supervisorName=${this.supervisorName}`
+        }
+      })
+    } else {
+      this.TimSrc = `http://47.101.185.1:5210/?userID=${this.user.loginName}&password=123456`
+    }
   },
   methods: {
     getList() {
@@ -57,6 +69,14 @@ export default {
           });
         }
       });
+    },
+    getSupervisorName(id) {
+      GetSupervisorById(id).then((res) => {
+        if(res.data.code === "000") {
+          this.supervisorName = res.data.datas[0].supervisorName
+          console.log(this.supervisorName)
+        }
+      })
     },
     searchClick() {
       const that = this;

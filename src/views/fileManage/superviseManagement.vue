@@ -22,6 +22,16 @@
                       disabled
                     ></el-input>
                   </el-form-item>
+                  <el-form-item label="绑定咨询师" prop="supervisor">
+                     <el-select v-model="counselorSelect" multiple placeholder="请选择">
+                       <el-option
+                          v-for="item in counselorList"
+                          :key="item.id"
+                          :label="item.counselorName"
+                          :value="item.id">
+                        </el-option>
+                     </el-select>
+                  </el-form-item>
                 </el-col>
                   <el-col :span="20">
                   <el-form-item label="周值班安排" prop="weekSchedule">
@@ -326,7 +336,7 @@
       <el-table-column
         prop="counselorIds"
         label="绑定咨询师"
-        width="160"
+        width="220"
         align="center"
       >
       </el-table-column>
@@ -408,7 +418,11 @@ import {
   DeleteSupervisor,
   GetSupervisorById,
   GetSupervisorList,
+  combineCounselor
 } from "@/api/supervisor";
+import {
+  GetCounselorList
+} from "@/api/consultant";
 import { AddUser, UpdateUser, GetUserById } from "@/api/users";
 import {GetSupervisorScheduleById,UpdateDefaultSchedule }from"@/api/schedule";
 import axios from "axios";
@@ -511,12 +525,14 @@ var validateUsername = (rule, value, callback) => {
       total: 0,
       listLoading: false,
       list: [],
+      counselorList: [],
+      counselorSelect: [],
       scheduleList:[],
       updateId:"",
       editScheduleForm:{
         name:"",
         id:"",
-        supervisor:[],
+        counselors:[],
         weekSchedule:[],
         weekScheduleString:[],
       },
@@ -604,40 +620,62 @@ var validateUsername = (rule, value, callback) => {
   mounted() {
     this.getList();
   },
+  created() {
+     this.asyncCounselorData();
+ },
   methods: {
     getList() {
-      const that = this;
-      const para = {
-        //...this.listQuery,
-        page: this.listQuery.page - 1,
-        size: this.listQuery.size
-      };
-      GetSupervisorList(para).then((res) => {
-        console.log(res.data.datas[0]);
+      GetCounselorList().then((res) => {
         if (res.data.code === "000") {
-          this.list = res.data.datas[0].content;
-          this.total = res.data.datas[0].totalElements;
-          for(let i =0;i<res.data.datas[0].content.length;i++){
-          this.list[i].totalSuperviseTime = this.formatSeconds(res.data.datas[0].content[i].totalCounselTime);
-          GetSupervisorScheduleById(this.list[i].id).then((res)=>{
-             if (res.data.code === "000") {
-               this.scheduleList = res.data.datas;
-               console.log(this.scheduleList);
-             this.list[i].schedule= this.scheduleList[0];
-             }else {
+          this.counselorList = res.data.datas[0].content;
+          console.log(this.counselorList)
+          const para = {
+            //...this.listQuery,
+            page: this.listQuery.page - 1,
+            size: this.listQuery.size
+          };
+          GetSupervisorList(para).then((res) => {
+            console.log(res.data.datas[0]);
+            if (res.data.code === "000") {
+              this.list = res.data.datas[0].content;
+              this.total = res.data.datas[0].totalElements;
+              for(let i =0;i<res.data.datas[0].content.length;i++){
+              this.list[i].totalSuperviseTime = this.formatSeconds(res.data.datas[0].content[i].totalCounselTime);
+              console.log(this.counselorList)
+              for(var j=0;j<this.list[i].counselorIds.length;j++) {
+                  for(var k=0;k<this.counselorList.length;k++) {
+                    if(this.list[i].counselorIds[j] === this.counselorList[k].id) {
+                      this.list[i].counselorIds[j] = this.counselorList[k].counselorName + " "
+                      console.log("1111")
+                    }
+                  }
+                }
+              /* GetSupervisorScheduleById(this.list[i].id).then((res)=>{
+                if (res.data.code === "000") {
+                  this.scheduleList = res.data.datas;
+                  console.log(this.scheduleList);
+                this.list[i].schedule= this.scheduleList[0];
+                }else {
+                  this.$message({
+                  message: res.data.msg,
+                  type: "error",
+                });
+                }
+              }) */}
+            } else {
               this.$message({
-              message: res.data.msg,
-              type: "error",
-             });
-             }
-          })}
+                message: res.data.msg,
+                type: "error",
+              });
+            }
+          });
         } else {
           this.$message({
             message: res.data.msg,
             type: "error",
           });
         }
-      });
+      })
     },
     searchClick() {
       const that = this;
@@ -690,28 +728,51 @@ var validateUsername = (rule, value, callback) => {
       this.dialogEditScheduleVisible = true;
     },
     dialogEditScheduleSure(){
-      const schedule = {
-        id:this.editScheduleForm.id,
-        isCounselor: false,
-        weekDaysList:this.editScheduleForm.weekScheduleString,
-      };
-      console.log(schedule);
-      UpdateDefaultSchedule(schedule).then((res)=>{
-      if (res.data.code === "000") {
-            console.log(res.data);
-            this.getList();
+      if(this.editScheduleForm.weekScheduleString.length !== 0) {
+        const schedule = {
+          id:this.editScheduleForm.id,
+          isCounselor: false,
+          weekDaysList:this.editScheduleForm.weekScheduleString,
+        };
+        console.log(schedule);
+        UpdateDefaultSchedule(schedule).then((res)=>{
+        if (res.data.code === "000") {
+              console.log(res.data);
+              this.getList();
+              this.$message({
+                message: "修改排班成功",
+                type: "success",
+              });
+          }else {
+                this.$message({
+                  message: res.data.msg,
+                  type: "error",
+            });
+          }
+        });
+      }
+      this.dialogEditScheduleVisible = false;
+      if(this.counselorSelect.length !== 0) {
+        let supervisorIds = [this.editScheduleForm.id]
+        const combine = {
+          counselorIds: this.counselorSelect,
+          supervisorIds: supervisorIds,
+        }
+        console.log(combine)
+        combineCounselor(combine).then((res) => {
+          if(res.data.code === "000") {
             this.$message({
-              message: "修改排班成功",
+              message: "绑定成功",
               type: "success",
             });
-        }else {
-              this.$message({
+          } else {
+            this.$message({
                 message: res.data.msg,
                 type: "error",
           });
-        }
-      });
-      this.dialogEditScheduleVisible = false;
+          }
+        })
+      }
     },
     editDetail(row) {
       console.log(row);
@@ -846,6 +907,19 @@ var validateUsername = (rule, value, callback) => {
           return false;
         }
       });
+    },
+    asyncCounselorData() {
+      GetCounselorList().then((res) => {
+        if (res.data.code === "000") {
+          this.counselorList = res.data.datas[0].content;
+          console.log(this.counselorList)
+        } else {
+          this.$message({
+            message: res.data.msg,
+            type: "error",
+          });
+        }
+      })
     },
     reset() {
       this.getList();

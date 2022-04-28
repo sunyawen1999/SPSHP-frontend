@@ -741,10 +741,10 @@ var validateUsername = (rule, value, callback) => {
     },
     dialogEditScheduleSure(){
       let supervisorIds = JSON.parse(JSON.stringify(this.editScheduleForm.supervisor));
-      for(let i=0;i<supervisorIds.length;i++){
+      let counselorId = [this.editScheduleForm.id]
       const combine = {
-        counselorId: this.editScheduleForm.id,
-        supervisorId: supervisorIds[i],
+        counselorIds: counselorId,
+        supervisorIds: supervisorIds,
       }
       console.log(combine);
       combineRequest(combine).then((res)=>{
@@ -760,14 +760,13 @@ var validateUsername = (rule, value, callback) => {
           });
         }
       });
-      }
       const schedule = {
         id:this.editScheduleForm.id,
         isCounselor: true,
         weekDaysList:this.editScheduleForm.weekScheduleString,
       };
       console.log(schedule);
-      UpdateDefaultSchedule(schedule).then((res)=>{
+      /* UpdateDefaultSchedule(schedule).then((res)=>{
       if (res.data.code === "000") {
             console.log(res.data);
             this.getList();
@@ -781,7 +780,7 @@ var validateUsername = (rule, value, callback) => {
                 type: "error",
           });
         }
-      });
+      }); */
       this.dialogEditScheduleVisible = false;
     },
     asyncSupervisorData(){

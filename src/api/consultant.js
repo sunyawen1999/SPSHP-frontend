@@ -19,3 +19,5 @@ export const GetCounselorToday = () => axios.get('/api/counselor/today');
 export const GetNumRank = () => axios.get('/api/counselor/numRank');
 
 export const GetScoreRank = () => axios.get('/api/counselor/scoreRank');
+
+export const GetCounselorBusy = () => axios.get('/api/counselor/getBusy');

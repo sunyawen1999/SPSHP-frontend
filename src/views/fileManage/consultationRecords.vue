@@ -164,8 +164,9 @@ import {
   DeleteCounsel,
   GetCounselById,
   GetCounselList,
-  GetCounselByCounselor
-} from "@/api/consultation";GetCounselorList
+  GetCounselByCounselor,
+  GetCounselBySupervisor
+} from "@/api/consultation";
 import {
   GetCounselorList
 } from "@/api/consultant";
@@ -239,14 +240,19 @@ export default {
       .catch(function (imError) {
         console.warn("login error:", imError); // 登录失败的相关信息
       }); */
-      this.getCustomerList();
+      //this.getCustomerList();
       if(this.user.roleType === "admin") {
         this.getList();
       } else  if(this.user.roleType === "counselor") {
         this.getListCounselor(this.user.counselorId);
+      } else if(this.user.roleType === "supervisor") {
+        this.getListSupervisor(this.user.supervisorInfo.counselorIds)
       }
       this.getCounselorList()
   },
+  created() {
+     this.getCustomerList();
+ },
   methods: {
     login() {
       this.loading = true;
@@ -319,7 +325,6 @@ export default {
   };
 },
     getList() {
-      const that = this;
       const para = {
         //...this.listQuery,
         page: this.listQuery.page - 1,
@@ -334,6 +339,7 @@ export default {
             for(var j=0;j<this.customerList.length;j++) {
               if(this.list[i].customerId === this.customerList[j].id){
                 this.list[i].customerId = this.customerList[j].customerName
+                break
               }
             }
             this.list[i].duration = this.formatSeconds(this.list[i].duration)
@@ -349,7 +355,6 @@ export default {
       });
     },
     getListCounselor(id) {
-      const that = this;
       const para = {
         //...this.listQuery,
         id: id,
@@ -360,17 +365,28 @@ export default {
         //console.log(res);
         if (res.data.code === "000") {
           this.list = res.data.datas[0].content;
-          console.log(this.customerList)
-          for(var i=0;i<this.list.length;i++) {
-            for(var j=0;j<this.customerList.length;j++) {
-              if(this.list[i].customerId === this.customerList[j].id){
-                this.list[i].customerId = this.customerList[j].customerName
+          console.log(this.list)
+          GetCustomerList().then((res) => {
+            if (res.data.code === "000") {
+              this.customerList = res.data.datas[0].content;
+              for(var i=0;i<this.list.length;i++) {
+                for(var j=0;j<this.customerList.length;j++) {
+                  if(this.list[i].customerId === this.customerList[j].id){
+                    this.list[i].customerId = this.customerList[j].customerName
+                    break
+                  }
+                }
+                this.list[i].duration = this.formatSeconds(this.list[i].duration)
+                this.list[i].startTime = this.list[i].startTime.substr(0,10) + " " + this.list[i].startTime.substr(11,8)
               }
+              this.total = res.data.datas[0].totalElements;
+            } else {
+              this.$message({
+                message: res.data.msg,
+                type: "error",
+              });
             }
-            this.list[i].duration = this.formatSeconds(this.list[i].duration)
-            this.list[i].startTime = this.list[i].startTime.substr(0,10) + " " + this.list[i].startTime.substr(11,8)
-          }
-          this.total = res.data.datas[0].totalElements;
+          });
         } else {
           this.$message({
             message: res.data.msg,
@@ -379,8 +395,52 @@ export default {
         }
       });
     },
+    getListSupervisor(idList) {
+      for(var i=0;i<idList.length;i++) {
+        const para = {
+          //...this.listQuery,
+          id: idList[i],
+          page: this.listQuery.page - 1,
+          size: this.listQuery.size
+        };
+        GetCounselByCounselor(para).then((res) => {
+          //console.log(res);
+          if (res.data.code === "000") {
+            var list = res.data.datas[0].content;
+            console.log(this.customerList)
+            GetCustomerList().then((res) => {
+              if (res.data.code === "000") {
+                this.customerList = res.data.datas[0].content;
+                for(var i=0;i<list.length;i++) {
+                  for(var j=0;j<this.customerList.length;j++) {
+                    if(list[i].customerId === this.customerList[j].id){
+                      list[i].customerId = this.customerList[j].customerName
+                      break
+                    }
+                  }
+                  list[i].duration = this.formatSeconds(list[i].duration)
+                  list[i].startTime = list[i].startTime.substr(0,10) + " " + list[i].startTime.substr(11,8)
+                }
+                var total = res.data.datas[0].totalElements;
+                this.list = this.list.concat(list)
+                this.total += total
+              } else {
+                this.$message({
+                  message: res.data.msg,
+                  type: "error",
+                });
+              }
+            });
+          } else {
+            this.$message({
+              message: res.data.msg,
+              type: "error",
+            });
+          }
+        });
+      }
+    },
     getCustomerList() {
-      const that = this;
       GetCustomerList().then((res) => {
         if (res.data.code === "000") {
           this.customerList = res.data.datas[0].content;
@@ -463,9 +523,13 @@ export default {
                 this.detailForm.counselorName = this.counselorList[j].counselorName
               }
             }
+            console.log(this.customerList)
           for(var j=0;j<this.customerList.length;j++) {
               if(res.data.datas[0].customerId === this.customerList[j].id){
                 this.detailForm.customerName = this.customerList[j].customerName
+                break
+              } else {
+                this.detailForm.customerName = ""
               }
             }
           this.detailForm.duration = this.formatSeconds(res.data.datas[0].duration);
@@ -509,6 +573,7 @@ export default {
         }
       }
       console.log(messageListOut)
+      messageListOut = messageListOut.reverse()
       this.downloadMessage(group,messageListOut)
     });
     },

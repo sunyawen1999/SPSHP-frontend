@@ -88,7 +88,7 @@
                 <td>
                   <span
                     style="margin-left: 150px; font-size: 50px; color: black"
-                    >123</span
+                    >{{nowSessionNum}}</span
                   >
                 </td>
               </tr>
@@ -197,7 +197,8 @@ export default {
         "TIMTextElem": "文本消息",
         "TIMImageElem": "图片消息",
         "TIMCustomElem": "系统消息"
-      }
+      },
+      nowSessionNum: 0
     };
   },
   mounted() {
@@ -209,13 +210,14 @@ export default {
     }
     this.getCustomerList();
     this.getCounselInfo();
+    this.nowContactNum()
   },
   methods: {
     getList() {
       this.user = JSON.parse(sessionStorage.getItem("user"));
       this.counselNum = this.user.counselorInfo.counselNum;
       this.counselToday = this.user.counselorInfo.counselToday;
-      this.counselTime = this.user.counselorInfo.counselTime;
+      this.counselTime = this.formatSeconds(this.user.counselorInfo.counselTime);
       if (this.user.counselorInfo.workStatus === "busy") {
         this.workStatus = "繁忙";
       } else {
@@ -311,7 +313,7 @@ export default {
 				// }
 				return result
 			},
-      seeDetail(row) {
+      /* seeDetail(row) {
       this.dialogDetailVisible = true;
       GetCounselById(row.id).then((res) => {
         console.log(res);
@@ -332,7 +334,7 @@ export default {
           this.detailForm.evaluateInfoToCustom = res.data.datas[0].evaluateInfo.starToCustomer;
         }
       });
-    },
+    }, */
     exportRecorder(group) {
       var sig = this.genTestUserSig("admin").userSig
       axios({
@@ -369,6 +371,26 @@ export default {
       console.log(messageListOut)
       this.downloadMessage(group,messageListOut)
     });
+    },
+    nowContactNum() {
+      var sig = this.genTestUserSig("admin").userSig
+      axios({
+        method: "post",
+        url: `https://console.tim.qq.com/v4/recentcontact/get_list?sdkappid=1400638027&identifier=admin&usersig=${sig}&random=99999999&contenttype=json`,
+        data: {
+            From_Account : this.user.loginName,
+	          TimeStamp : 0,
+            StartIndex : 0,
+            TopTimeStamp: 0,
+            TopStartIndex: 0,
+            AssistFlags: 1
+        },
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    }).then((res) => {
+      this.nowSessionNum = res.data.SessionItem.length
+    })
     },
     downloadMessage(group,data) {
       console.log(data)

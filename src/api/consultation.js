@@ -17,9 +17,12 @@ export const GetCounselByCounselor = (para) => {
     return axios.get('/api/counsel/counselor', { params: para });
 };
 
+export const GetCounselBySupervisor = (para) => {
+    return axios.get('/api/counsel/supervisor', { params: para });
+};
+
 export const GetCounselWeekAll = () => axios.get('/api/counsel/weekAll');
 
 export const GetCounselTodayAll = () => axios.get('/api/counsel/todayAll');
 
 export const GetCounselTodaySum = () => axios.get('/api/counsel/todaySum');
-

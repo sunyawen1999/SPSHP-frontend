@@ -188,6 +188,7 @@
             :data="numRankList"
             stripe
             style="width: 100%"
+            height="210"
           >
             <el-table-column prop="counselorName" label="咨询师" width="180">
             </el-table-column>
@@ -199,7 +200,7 @@
       <el-col :span="6">
         <el-card class="third-line">
           <span>当月好评数量排行</span>
-          <el-table :data="scoreRankList" stripe style="width: 100%">
+          <el-table :data="scoreRankList" stripe style="width: 100%" height="210">
             <el-table-column prop="counselorName" label="咨询师" width="180">
             </el-table-column>
             <el-table-column prop="counselScore" label="平均评价" width="180">
